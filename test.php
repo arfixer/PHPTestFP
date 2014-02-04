@@ -48,52 +48,74 @@ class SuccessInfoFilm extends Film{
         
         
         $aBonusy = array();
-        $aBonusy['tested'] = 1;
+        
         if (is_array($this->aSuccessInfoObjs) ){
+            $aBonusy['tested'] = 1;
+            
             foreach ($this->aSuccessInfoObjs as $klatka_filmu => $oSuccessInfo) {
             
                 if ( $oSuccessInfo->bKPOK ){
                     $this->punkty += 1;
-                }    
-                if ( $oSuccessInfo->bKPOK && $oSuccessInfo->bSilaWektoraKPOK){
-                    $this->punkty += 0.25;
+                    $aBonusy['bKPOK'] += 1;
                 }
+                
+                
+                
+                if ( $oSuccessInfo->bColoryNoSame === true ){
+                    $this->punkty += 0.25;
+                    $aBonusy['bColoryNoSame'] += 0.25;
+                }
+                
+                if ( $oSuccessInfo->bColoryNoSame === false ){
+                    $this->punkty -= 0.25;
+                    $aBonusy['bColoryNoDiff'] -= 0.25;
+                }
+                
+                
+//                else{
+//                    $aBonusy['bKPOK'] -= 0.5;
+//                }
+//                if ( $oSuccessInfo->bKPOK && $oSuccessInfo->bSilaWektoraKPOK){
+//                    $this->punkty += 0.25;
+//                }
             
                 
+//                
+//                    if ( $oSuccessInfo->ignoreColor){
+//                        var_dump_spec( "FILM IGNORE MAIN COLOR: $this->idFilm", true );
+//                    }
+//                    else{
+//                        if (  $oSuccessInfo->bMainColorOK   ){
+//                            $this->punkty += 0.25;
+//                            $aBonusy['colorMainplus'] += 0.25;
+//                            if ( $oSuccessInfo->roznicaMainColorow < 66 ||  $oSuccessInfo->roznicaMainColorow >150 ){
+//                                $this->punkty -= 0.25;
+//                                $aBonusy['colorMainminus'] -= 0.25;
+//                            }
+//                        }
+//                    }
                 
-                    if ( $oSuccessInfo->ignoreColor){
-                        var_dump_spec( "FILM IGNORE MAIN COLOR: $this->idFilm", true );
-                    }
-                    else{
-                        if (  $oSuccessInfo->bMainColorOK   ){
-                            $this->punkty += 0.25;
-                            $aBonusy['colorMainplus'] += 0.25;
-                            if ( $oSuccessInfo->roznicaMainColorow < 66 ||  $oSuccessInfo->roznicaMainColorow >150 ){
-                                $this->punkty -= 0.25;
-                                $aBonusy['colorMainminus'] -= 0.25;
-                            }
-                        }
-                    }
-                
-                
-                
-                //kolory musza sie pokrywac zeby byly w scces->acno wiec luz
-                if ( count($oSuccessInfo->aColoryNo) == array_sum($oGlobal->oFPPhone->aColoryNo) ){
-                    $aBonusy['colorNOplus'] += 0.1;
-                    $this->punkty += 0.1;
-                }
-                else{
-    //                var_dump( $this->idFilm );
-                    $this->punkty -= 0.1;
-                    $aBonusy['colorNOminus'] -= 0.1;
-                }
-                
+//                
+//                
+//                //kolory musza sie pokrywac zeby byly w scces->acno wiec luz
+//                if ( count($oSuccessInfo->aColoryNo) == array_sum($oGlobal->oFPPhone->aColoryNo) ){
+//                    $aBonusy['colorNOplus'] += 0.1;
+//                    $this->punkty += 0.1;
+//                }
+//                else{
+//    //                var_dump( $this->idFilm );
+//                    $this->punkty -= 0.1;
+//                    $aBonusy['colorNOminus'] -= 0.1;
+//                }
+//                
                 if (!$oSuccessInfo->bGrayIgnore){
                     if ( $oSuccessInfo->bGrayCwiartkaOK ){
                         $this->punkty += 0.25;
+                        $aBonusy['bGrayCwiartkaOK'] += 0.25;
                     }
                     if ( $oSuccessInfo->bGrayCwiartkaDuzaRoznica ){
                         $this->punkty -= 0.25;
+                        $aBonusy['bGrayCwiartkaDuzaRoznica'] -= 0.25;
                     }
                 }
                 
@@ -119,7 +141,7 @@ class SuccessInfo{
     public $bSilaWektoraKPOK;
     public $bMainColorOK;
     public $aColorNo;
-    
+    public $bColoryNoSame;
     public $ignoreColor;
     public $roznicaMainColorow;
     public $idFilm;
@@ -145,6 +167,7 @@ class SuccessInfo{
         $this->bSilaWektoraKPOK = $bSilaWektoraKPOK;
         $this->roznicaMainColorow = -1;
         $this->bGrayCwiartkaOK = -1;
+        $this->bColoryNoSame = -1;
         $this->bGrayIgnore = false;
         $this->aColorNo = array();
         
@@ -340,218 +363,7 @@ function returnCDifArray( $colors ){
         return $aCDifs;
 }
 
-/**
- * 
- * @param FrameFingerprintMarcin $oFP
- * @param type $aFilm
- * @param GlobalData $oGlboal
- * @return SuccessInfoFilm
- */
-function compareFPWithFilm($oFP, $aFilm, $oGlobal, $idFilm ){
-    $aFilmSuccess = array(); 
- //   var_dump( $aFilm );
-    /**
-     * 
-     */
-//    $aFilmSuccessObj = array();
-    $oFilmSuccess = new SuccessInfoFilm($idFilm);
-    if (is_array($aFilm) )
-    foreach ($aFilm as $key=>$oFPFilm) {
-//        var_dump ( $oFPFilm );
-        $oSuccessObj = new SuccessInfo($idFilm, $oFPFilm, $oFP, $oGlobal);
-        $klatka_ok = 0;
-        if ( abs($oFP->cwiartka - $oFPFilm->cwiartka) <= 0 ){
-            $klatka_ok += 1;
-            $oSuccessObj->bKPOK = true;
-//            echo "+";
-        }
-        
-        if ( !(abs($oFP->propDlSuma - $oFPFilm->propDlSuma) > 0.0005) ){
-                $oSuccessObj->bSilaWektoraKPOK = true;
-        }
-                
-           
-        //1. sprawdz roznice miedzy kolorami global
-//        $aCDifs = returnCDifArray($oGlobal->aColors);
-        //1. sprawdz roznice miedzy kolorami klatka
-        
-        
-        
-        $maxFilm = array_keys($oFPFilm->aColory, max($oFPFilm->aColory));
-        $maxFilmCDif = max(returnCDifArray($oFPFilm->aColory));
-        
-        
-        $maxPhone = array_keys($oGlobal->aColors, max($oGlobal->aColors));
-        $maxPhoneCDif = max(returnCDifArray($oGlobal->aColors));
-        
-        
-        $aCDifs = returnCDifArray($oGlobal->aColors);
-        
-        
-        
-        /*
-         KOLORY
-         */
-        if ( $maxPhoneCDif < 20 ){
-            $oSuccessObj->ignoreColor = true;
-        }
-        else{
-            $oSuccessObj->ignoreColor = false;
-            
-            if ( $oFPFilm->aColoryNo["b"] &&  $oGlobal->oFPPhone->aColoryNo["b"] ){
-                $oSuccessObj->aColoryNo["b"] = 1;
-            }
-            
-            
-            if ( $oFPFilm->aColoryNo["g"] &&  $oGlobal->oFPPhone->aColoryNo["g"] ){
-                $oSuccessObj->aColoryNo["g"] = 1;
-            }
-            
-            
-            
-            if ( $oFPFilm->aColoryNo["r"] &&  $oGlobal->oFPPhone->aColoryNo["r"] ){
-                $oSuccessObj->aColoryNo["r"] = 1;
-            }
-            
-            if ( $idFilm ==  999){
-                var_dump_spec( $oFPFilm->aColory, true );
-                var_dump_spec( $oGlobal->oFPPhone->aColory, true );
-                var_dump_spec( $oFPFilm->aColoryNo, true );
-                var_dump_spec( $oGlobal->oFPPhone->aColoryNo, true );
-                
-                
-                var_dump_spec( $oSuccessObj->aColoryNo, true );
-                
-                var_dump_spec( "<hr>", true );
-            }
-            
 
-            
-//            var_dump("film:$idFilm=>",$oFPFilm->aColoryProc, $oFPFilm->aColoryNo ,  "<hr>");
-//            var_dump("global:",$oGlobal->oFPPhone->aColoryProc,$oGlobal->oFPPhone->aColoryNo,  "<hr>");
-            
-            
-            
-//            var_dump("film:$idFilm=>$maxFilm[0]($main_film_proc) $maxPhone[0]($main_global_proc) => $color_prop", "<hr>");
-            
-            
-        
-
-            
-            if ( array_sum($oFPFilm->aColory) == 0 ){
-                    $oSuccessObj->ignoreColor = true;
-            }
-            else{
-                
-                
-                if ( $maxFilm[0] == $maxPhone[0] ){
-                    $oSuccessObj->bMainColorOK = true;
-                    $aGlobalColorsProc = array(
-                                               "b"=>round(($oGlobal->aColors["b"] / array_sum($oGlobal->aColors)) * 100, 2),
-                                               "g"=>round(($oGlobal->aColors["g"] / array_sum($oGlobal->aColors)) * 100, 2),
-                                               "r"=>round(($oGlobal->aColors["r"] / array_sum($oGlobal->aColors)) * 100, 2) );
-                    
-                    
-                    $aFilmColorsProc = array(
-                                             "b"=>round(($oFPFilm->aColory["b"] / array_sum($oFPFilm->aColory)) * 100, 2),
-                                             "g"=>round(($oFPFilm->aColory["g"] / array_sum($oFPFilm->aColory)) * 100, 2),
-                                             "r"=>round(($oFPFilm->aColory["r"] / array_sum($oFPFilm->aColory)) * 100, 2) );
-                    
-                    
-                    
-                    
-                    $main_global_proc = $aGlobalColorsProc[$maxPhone[0]];
-                    $main_film_proc = $aFilmColorsProc[$maxFilm[0]];
-                    $color_prop = round(($main_global_proc / $main_film_proc) * 100, 2);
-                    $oSuccessObj->roznicaMainColorow = $color_prop;
-                    
-                }
-            }
-            
-        }
-        
-        
-        /* KIERUNEK GRAYA */
-        
-//        var_dump_spec ( $oFP->grayVector, true);
-//        if ( $idFilm == 1 ){
-//        var_dump_spec ( abs($oFPFilm->grayVector[0]), true);
-//        }
-        //jezeli nei ma jasnego skierowania to olresmy
-        if ( abs($oFPFilm->grayVector[0]) <= 0.1 && abs($oFPFilm->grayVector[2]) <= 0.1 ){
-           $oSuccessObj->bGrayIgnore = true;
-        }
-        else{
-            $oSuccessObj->bGrayIgnore = false;
-        }
-        
-        
-        
-        
-        
-        if (  $oFP->grayCwiartka == $oFPFilm->grayCwiartka ){
-            $oSuccessObj->bGrayCwiartkaOK = true;
-        }
-        else{
-            $oSuccessObj->bGrayCwiartkaOK = false;
-        }
-        
-        if ( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) <=2 ){
-            $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
-        }
-        elseif( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) >= 14){ //przyapdek gdy cwiartki 15,1 14,0
-            $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
-        }
-        else{
-            $oSuccessObj->bGrayCwiartkaDuzaRoznica = true;
-        }
-        
-        
-                
-        $oFilmSuccess->addSuccess($oSuccessObj);     
-    }//end foreach
-    
-//    var_dump_spec($aFilmSuccessObj, true);
-    return $oFilmSuccess;
-}
-/**
- * 
- * @param type $oFP
- * @param type $aServerFilms
- * @param GlobalData $oGlobal
- * @return type
- */
-function compareFPWithFilms( $oFP, $aServerFilms, $oGlobal ){ 
-    $aFilmsSuccess = array();
-    
-    foreach ($aServerFilms as $key=>$aFilm) {
-        $oSuccessFilm = compareFPWithFilm($oFP, $aFilm ,$oGlobal, $key);
-        $punkty = $oSuccessFilm->getSuccessPoints( $oGlobal );
-        $aFilmsSuccess[$key] += $punkty;
-    }
-
-    
-    return $aFilmsSuccess;
-        
-}
-
-function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
-    $aFPSuccess = array();
-    $aSumaSumarum = array();
-    $aSumaSumarumProp = array();
-    foreach ($aRecivedFP as $key=>$oFP) {
-        $aFilmsSuccess = compareFPWithFilms($oFP, $aServerFilms, $oGlobal);
-        $aFPSuccess[$key] = $aFilmsSuccess;
-        
-        foreach ($aFilmsSuccess as $film_id => $value) {
-            $aSumaSumarum[$film_id] += $value;
-            
-        }
-    }
-    
-    arsort($aSumaSumarum);
-    
-}
     
     
    
@@ -595,6 +407,290 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
         
     }
     
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     *
+     * @param FrameFingerprintMarcin $oFP
+     * @param type $aFilm
+     * @param GlobalData $oGlboal
+     * @return SuccessInfoFilm
+     */
+    function compareFPWithFilm($oFP, $aFilm, $oGlobal, $idFilm ){
+        $aFilmSuccess = array();
+//        var_dump_spec( "compareFPWithFilm: idFilm:$idFilm", true );
+       
+        $oFilmSuccess = new SuccessInfoFilm($idFilm);
+        
+        
+        
+        if (is_array($aFilm) )
+            foreach ($aFilm as $key=>$oFPFilm) {
+                
+                //        var_dump ( $oFPFilm );
+                $oSuccessObj = new SuccessInfo($idFilm, $oFPFilm, $oFP, $oGlobal);
+                
+                
+                $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka);
+                if ( $qdif <= 1 || $qdif >= 15  ){
+                    $oSuccessObj->bKPOK = true;
+//                    var_dump_spec( "CWIARTKA OK with film frame: $key", true );
+                }
+                
+//                if ( !(abs($oFP->propDlSuma - $oFPFilm->propDlSuma) > 0.0005) ){
+//                    $oSuccessObj->bSilaWektoraKPOK = true;
+//                    var_dump_spec( "SILA CWIARTKA OK with film frame: $key", true );
+//                }
+                
+                
+                //1. sprawdz roznice miedzy kolorami global
+                //        $aCDifs = returnCDifArray($oGlobal->aColors);
+                //1. sprawdz roznice miedzy kolorami klatka
+
+                
+                
+                
+                
+//                
+//                
+//                $maxFilm = array_keys($oFPFilm->aColory, max($oFPFilm->aColory));
+//                $maxFilmCDif = max(returnCDifArray($oFPFilm->aColory));
+////
+                
+                //jezeli zdazy sie ze zarowno klatka Mob i klatka Film maja te same kolory < 20 to +1
+//                var_dump_spec( $oGlobal->oFPPhone->aColoryProc, true );
+//                var_dump_spec( $oFPFilm->aColoryProc, true );
+                
+//                if ( $oGlobal->oFPPhone->aColoryN['b'] < 15 && $oFPFilm->aColoryProc['b'] < 15 ){
+//                    $oSuccessObj->aColoryNo["b"] = 1;
+//                }
+//                if ( $oGlobal->oFPPhone->aColoryProc['g'] < 15 && $oFPFilm->aColoryProc['g'] < 15 ){
+//                    $oSuccessObj->aColoryNo["g"] = 1;
+//                }
+//                if ( $oGlobal->oFPPhone->aColoryProc['r'] < 15 && $oFPFilm->aColoryProc['r'] < 15 ){
+//                    $oSuccessObj->aColoryNo["r"] = 1;
+//                }
+                
+//                var_dump_spec( $oSuccessObj->aColoryNo, true );
+//                echo $idFilm;
+//                var_dump_spec( $oGlobal->oFPPhone->aColoryNo, true );
+//                var_dump_spec( $oFPFilm->aColoryNo, true );
+                if( $oGlobal->oFPPhone->aColoryNo == $oFPFilm->aColoryNo ){
+                    $oSuccessObj->bColoryNoSame = true;
+//                    var_dump_spec( "SAME", true );
+                }
+                else{
+                    $oSuccessObj->bColoryNoSame = false;
+                }
+                
+//                echo "<hr>";
+                
+                
+                
+//                $maxPhone = array_keys($oGlobal->oFPPhone->aColoryProc, max($oGlobal->aColors));
+//                $maxPhoneCDif = max(returnCDifArray($oGlobal->aColors));
+//
+//                
+//                $aCDifs = returnCDifArray($oGlobal->aColors);
+//                
+//                
+//                
+//                /*
+//                 KOLORY
+//                 */
+//                if ( $maxPhoneCDif < 20 ){
+//                    $oSuccessObj->ignoreColor = true;
+//                }
+//                else{
+//                    $oSuccessObj->ignoreColor = false;
+//                    
+//                    if ( $oFPFilm->aColoryNo["b"] &&  $oGlobal->oFPPhone->aColoryNo["b"] ){
+//                        $oSuccessObj->aColoryNo["b"] = 1;
+//                    }
+//                    
+//                    
+//                    if ( $oFPFilm->aColoryNo["g"] &&  $oGlobal->oFPPhone->aColoryNo["g"] ){
+//                        $oSuccessObj->aColoryNo["g"] = 1;
+//                    }
+//                    
+//                    
+//                    
+//                    if ( $oFPFilm->aColoryNo["r"] &&  $oGlobal->oFPPhone->aColoryNo["r"] ){
+//                        $oSuccessObj->aColoryNo["r"] = 1;
+//                    }
+//                    
+//                    if ( $idFilm ==  999){
+//                        var_dump_spec( $oFPFilm->aColory, true );
+//                        var_dump_spec( $oGlobal->oFPPhone->aColory, true );
+//                        var_dump_spec( $oFPFilm->aColoryNo, true );
+//                        var_dump_spec( $oGlobal->oFPPhone->aColoryNo, true );
+//                        
+//                        
+//                        var_dump_spec( $oSuccessObj->aColoryNo, true );
+//                        
+//                        var_dump_spec( "<hr>", true );
+//                    }
+//                    
+//                    
+//                    
+//                    //            var_dump("film:$idFilm=>",$oFPFilm->aColoryProc, $oFPFilm->aColoryNo ,  "<hr>");
+//                    //            var_dump("global:",$oGlobal->oFPPhone->aColoryProc,$oGlobal->oFPPhone->aColoryNo,  "<hr>");
+//                    
+//                    
+//                    
+//                    //            var_dump("film:$idFilm=>$maxFilm[0]($main_film_proc) $maxPhone[0]($main_global_proc) => $color_prop", "<hr>");
+//                    
+//                    
+//                    
+//                    
+//                    
+//                    if ( array_sum($oFPFilm->aColory) == 0 ){
+//                        $oSuccessObj->ignoreColor = true;
+//                    }
+//                    else{
+//                        
+//                        
+//                        if ( $maxFilm[0] == $maxPhone[0] ){
+//                            $oSuccessObj->bMainColorOK = true;
+//                            $aGlobalColorsProc = array(
+//                                                       "b"=>round(($oGlobal->aColors["b"] / array_sum($oGlobal->aColors)) * 100, 2),
+//                                                       "g"=>round(($oGlobal->aColors["g"] / array_sum($oGlobal->aColors)) * 100, 2),
+//                                                       "r"=>round(($oGlobal->aColors["r"] / array_sum($oGlobal->aColors)) * 100, 2) );
+//                            
+//                            
+//                            $aFilmColorsProc = array(
+//                                                     "b"=>round(($oFPFilm->aColory["b"] / array_sum($oFPFilm->aColory)) * 100, 2),
+//                                                     "g"=>round(($oFPFilm->aColory["g"] / array_sum($oFPFilm->aColory)) * 100, 2),
+//                                                     "r"=>round(($oFPFilm->aColory["r"] / array_sum($oFPFilm->aColory)) * 100, 2) );
+//                            
+//                            
+//                            
+//                            
+//                            $main_global_proc = $aGlobalColorsProc[$maxPhone[0]];
+//                            $main_film_proc = $aFilmColorsProc[$maxFilm[0]];
+//                            $color_prop = round(($main_global_proc / $main_film_proc) * 100, 2);
+//                            $oSuccessObj->roznicaMainColorow = $color_prop;
+//                            
+//                        }
+//                    }
+//                    
+//                }
+//                
+//                
+//                /* KIERUNEK GRAYA */
+//                
+//                //        var_dump_spec ( $oFP->grayVector, true);
+//                //        if ( $idFilm == 1 ){
+//        var_dump_spec ( abs($oFPFilm->grayVector[1]), true);
+//                //        }
+                //jezeli nei ma jasnego skierowania to olresmy
+                if ( abs($oFPFilm->grayVector[0]) <= 0.1 && abs($oFPFilm->grayVector[1]) <= 0.1 ){
+                    $oSuccessObj->bGrayIgnore = true;
+                }
+                else{
+                    $oSuccessObj->bGrayIgnore = false;
+                    //ezeli film ni chce byc ignorowany to jeszcze upewnij sie ze mobile nie ignore
+                    if ( abs($oFP->grayVector[0]) <= 0.1 && abs($oFP->grayVector[1]) <= 0.1 ){
+                        $oSuccessObj->bGrayIgnore = true;
+                    }
+                    
+                }
+                
+                
+//                var_dump_spec ( $oFP->grayCwiartka, true);
+//                var_dump_spec ( $oFPFilm->grayCwiartka, true);
+                //
+//                
+//                
+//                
+//                
+                if (  $oFP->grayCwiartka == $oFPFilm->grayCwiartka ){
+                    $oSuccessObj->bGrayCwiartkaOK = true;
+                }
+                else{
+                    $oSuccessObj->bGrayCwiartkaOK = false;
+                }
+//
+                if ( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) <=2 ){
+                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
+                }
+                elseif( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) >= 14){ //przyapdek gdy cwiartki 15,1 14,0
+                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
+                }
+                else{
+                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = true;
+                }
+//
+//                
+                
+                $oFilmSuccess->addSuccess($oSuccessObj);     
+            }//end foreach
+        
+        //    var_dump_spec($aFilmSuccessObj, true);
+        return $oFilmSuccess;
+    }
+    
+
+    
+    
+    
+    
+    /**
+     *
+     * @param type $oFP
+     * @param type $aServerFilms
+     * @param GlobalData $oGlobal
+     * @return type
+     */
+    function compareFPWithFilms( $oFP, $aServerFilms, $oGlobal ){
+        $aFilmsSuccess = array();
+        
+        foreach ($aServerFilms as $key=>$aFilm) {
+            
+            $oSuccessFilm = compareFPWithFilm($oFP, $aFilm ,$oGlobal, $key);
+            $punkty = $oSuccessFilm->getSuccessPoints( $oGlobal );
+            $aFilmsSuccess[$key] += $punkty;
+        }
+        
+        
+        return $aFilmsSuccess;
+        
+    }
+    
+    function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
+        
+        var_dump_spec( "COMPARE MAIN BEGIN", true);
+        
+        $aFPSuccess = array();
+        $aSumaSumarum = array();
+        $aSumaSumarumProp = array();
+        foreach ($aRecivedFP as $key=>$oFP) {
+            $aFilmsSuccess = compareFPWithFilms($oFP, $aServerFilms, $oGlobal);
+            $aFPSuccess[$key] = $aFilmsSuccess;
+            
+            foreach ($aFilmsSuccess as $film_id => $value) {
+                $aSumaSumarum[$film_id] += $value;
+                
+            }
+        }
+        
+        arsort($aSumaSumarum);
+        
+        var_dump_spec( "COMPARE MAIN END", true);
+//        var_dump_spec( $aSumaSumarum, true);
+        
+        return $aSumaSumarum;
+        
+        
+    }
+    
+    
     //START
     
     
@@ -622,8 +718,6 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
     # based on GET preapre films fingerproints.
     $aServerFilms = prepareFilmsJsonBasedOnGet( $_REQUEST['films'] );
     
-    
-    
     #STEP 4 - jezeli tlefon m dominuajcy bardzo kolor to testuj dalerj tylko filmy posisdajace klatk iz dom kolorem
     if (key_exists("CDF", $_REQUEST) && $_REQUEST['CDF'] == 1){
         var_dump_spec( "FILTRATING CDF: ON", true);
@@ -632,7 +726,6 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
             var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: TRUE", true);
             # mobile ma main color to teraz odfiltrujmy filmy
             $aServerFilms = filtrFilmsForOnlyOneWithMainColor( $aServerFilms );
-            
         }
         else{
             var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: FALSE", true);
@@ -642,20 +735,36 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
         var_dump_spec( "FILTRATING CDF: OFF", true);
     }
     
+    #STEP 5 - give points 1.0 for FAST KP Quatter ok
+    $aHitCounts = comapareMain( $aMobileFrames, $aServerFilms, $oGlobal );
     
     
     
-    var_dump_spec( $aServerFilms, true );
+$suma = array_sum($aHitCounts);
+   $aHitCountsProp = array();
+
+    foreach ($aHitCounts as $film_id => $punkty){
+        $avg = round($punkty / $suma, 5);
+        if ( $avg > 0.1 )
+            $aHitCountsProp[$film_id] = $avg;
+    }
     
-//$suma = array_sum($aHitCounts);
-//   $aHitCountsProp = array();
-//
     
-//    //old one
-//    foreach ($aSumaSumarum as $film_id => $punkty) {
-//        $sum = array_sum($aSumaSumarum);
-//        if ( $sum > 0 ){
-//            $prop = round($punkty / $sum,3);
-//        }
-//        if ( $prop >= 0.1 ){
-//            $aSumaSumarumProp[$film_id] = $prop
+    
+    var_dump_spec( $aHitCountsProp, true );
+    
+    echo json_encode( $aHitCountsProp );
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
