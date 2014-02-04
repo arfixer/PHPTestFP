@@ -174,12 +174,14 @@ class FrameFingerprint{
 class GlobalData{
     public $aColors;
     public $oFPPhone;
+    
 //    public $aColorNo75;
     
     public function setColors( $aColors ){
         $this->aColors = $aColors;
-        
     }
+    
+    
 }
 
 class FrameFingerprintMarcin{
@@ -552,7 +554,29 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
 }
     
     
+   
     
+    function prepareFilmsJsonBasedOnGet( $get_films_string ){
+        $aServerFilms = array(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+        $get_films_id = json_decode($get_films_string);
+        var_dump_spec( $get_films_id, true );
+        if ( count(get_films_id) == 0 ){
+            #testuje wszystkie
+            for ( $film_id=0; $film_id<=9; $num++ ){
+                $filename = "marcin20d/$film_id.json";
+                $aServerFilms[$film_id] = getFileJsonToArray($filename);
+            }
+        }
+        else{
+            foreach ( $get_films_id AS $film_id ){
+                $filename = "marcin20d/$film_id.json";
+                $aServerFilms[$film_id] = getFileJsonToArray($filename);
+            }
+        }
+        
+        return $aServerFilms;
+
+    }
     
     
     
@@ -560,19 +584,28 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
     
     
     $time0 = time();
-    $aServerFilms = array();
     
-    //1. create server finger prnts
-    for ( $num=0; $num<=9; $num++ ){
-        $filename = "files/marcin20c/$num.json";
-        $aServerFilms[] = getFileJsonToArray($filename);
+    
+    #STEP 1
+    # based on GET preapre films fingerproints.
+    $aServerFilms = prepareFilmsJsonBasedOnGet( $_REQUEST['films'] );
+    
+    #STEP 2
+    # preapre oGlobaldatas contain mobile FP Data
+    $aDatas = $_REQUEST['datas'];
+    $aMobileFrames = array();
+    foreach ( $aDatas AS $m_frame_id=>$sString){
+        $aInfo = json_decode($sString);
+        $oFP = new FrameFingerprintMarcin( $aInfo[0], $aInfo[1], $aInfo[2], $aInfo[3], $aInfo[8], $aInfo[9] );
+        $oFP->setColors( array("b"=>$aInfo[4],"g"=>$aInfo[5],"r"=>$aInfo[6]));
+        $aMobileFrames[$m_frame_id] = $oFP;
     }
+    
+    #STEP 3
+    # save to $oGLobal LastFrame Kolors
+    $oGlobal = new GlobalData();
+    $oGlobal->oFPPhone = $aMobileFrames[count($aMobileFrames)-1];
 
-    
-    
-    
-    
-    
     
     
     
