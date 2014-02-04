@@ -559,10 +559,9 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
     function prepareFilmsJsonBasedOnGet( $get_films_string ){
         $aServerFilms = array(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
         $get_films_id = json_decode($get_films_string);
-        var_dump_spec( $get_films_id, true );
-        if ( count(get_films_id) == 0 ){
+        if ( count($get_films_id) == 0 ){
             #testuje wszystkie
-            for ( $film_id=0; $film_id<=9; $num++ ){
+            for ( $film_id=0; $film_id<=9; $film_id++ ){
                 $filename = "marcin20d/$film_id.json";
                 $aServerFilms[$film_id] = getFileJsonToArray($filename);
             }
@@ -579,6 +578,22 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
     }
     
     
+    function filtrFilmsForOnlyOneWithMainColor( $aServerFilms ){
+        $aServerFilmsTmp = array(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+        
+        foreach( $aServerFilms AS $film_id=>$aFrames ){
+            if( count($aFrames) ){
+                foreach ( $aFrames AS $frame_id=>$oFP ){
+                    if ( $oFP->aColoryProc["b"] > 60 || $oFP->aColoryProc["g"] > 60 || $oFP->aColoryProc["r"] > 60){
+                        $aServerFilmsTmp[$film_id] = $aFrames;
+                        break;
+                    }
+                }
+            }
+        }
+        return $aServerFilmsTmp;
+        
+    }
     
     //START
     
@@ -586,11 +601,8 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
     $time0 = time();
     
     
-    #STEP 1
-    # based on GET preapre films fingerproints.
-    $aServerFilms = prepareFilmsJsonBasedOnGet( $_REQUEST['films'] );
     
-    #STEP 2
+    #STEP 1
     # preapre oGlobaldatas contain mobile FP Data
     $aDatas = $_REQUEST['datas'];
     $aMobileFrames = array();
@@ -601,14 +613,39 @@ function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
         $aMobileFrames[$m_frame_id] = $oFP;
     }
     
-    #STEP 3
+    #STEP 2
     # save to $oGLobal LastFrame Kolors
     $oGlobal = new GlobalData();
     $oGlobal->oFPPhone = $aMobileFrames[count($aMobileFrames)-1];
 
+    #STEP 3
+    # based on GET preapre films fingerproints.
+    $aServerFilms = prepareFilmsJsonBasedOnGet( $_REQUEST['films'] );
     
     
     
+    #STEP 4 - jezeli tlefon m dominuajcy bardzo kolor to testuj dalerj tylko filmy posisdajace klatk iz dom kolorem
+    if (key_exists("CDF", $_REQUEST) && $_REQUEST['CDF'] == 1){
+        var_dump_spec( "FILTRATING CDF: ON", true);
+        var_dump_spec( $oGlobal->oFPPhone->aColoryProc, true);
+        if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 || $oGlobal->oFPPhone->aColoryProc["g"] > 60 || $oGlobal->oFPPhone->aColoryProc["r"] > 60){
+            var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: TRUE", true);
+            # mobile ma main color to teraz odfiltrujmy filmy
+            $aServerFilms = filtrFilmsForOnlyOneWithMainColor( $aServerFilms );
+            
+        }
+        else{
+            var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: FALSE", true);
+        }
+    }
+    else{
+        var_dump_spec( "FILTRATING CDF: OFF", true);
+    }
+    
+    
+    
+    
+    var_dump_spec( $aServerFilms, true );
     
 //$suma = array_sum($aHitCounts);
 //   $aHitCountsProp = array();
