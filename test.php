@@ -374,12 +374,14 @@ function returnCDifArray( $colors ){
         if ( count($get_films_id) == 0 ){
             #testuje wszystkie
             for ( $film_id=0; $film_id<=9; $film_id++ ){
+                $filename = "files/marcin20d/$film_id.json";
                 $filename = "marcin20d/$film_id.json";
                 $aServerFilms[$film_id] = getFileJsonToArray($filename);
             }
         }
         else{
             foreach ( $get_films_id AS $film_id ){
+                $filename = "files/marcin20d/$film_id.json";
                 $filename = "marcin20d/$film_id.json";
                 $aServerFilms[$film_id] = getFileJsonToArray($filename);
             }
@@ -392,17 +394,31 @@ function returnCDifArray( $colors ){
     
     function filtrFilmsForOnlyOneWithMainColor( $aServerFilms ){
         $aServerFilmsTmp = array(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
-        
+        $aTest = array();
         foreach( $aServerFilms AS $film_id=>$aFrames ){
             if( count($aFrames) ){
                 foreach ( $aFrames AS $frame_id=>$oFP ){
-                    if ( $oFP->aColoryProc["b"] > 60 || $oFP->aColoryProc["g"] > 60 || $oFP->aColoryProc["r"] > 60){
-                        $aServerFilmsTmp[$film_id] = $aFrames;
-                        break;
+                    if ( $oFP->aColoryProc["b"] > 60){
+                        $aServerFilmsTmp["b"][$film_id] = $aFrames;
+                        $aTest["b"][$film_id]++;
+//                        break;
+                    }
+                    if ( $oFP->aColoryProc["g"] > 60){
+                        $aServerFilmsTmp["g"][$film_id] = $aFrames;
+                        $aTest["g"][$film_id]++;
+                        //                        break;
+                    }
+                    if ( $oFP->aColoryProc["r"] > 60){
+                        $aServerFilmsTmp["r"][$film_id] = $aFrames;
+                        $aTest["r"][$film_id]++;
+                        //                        break;
                     }
                 }
             }
         }
+        
+        var_dump_spec( "MOVIES WITH MAIN COLORS:", true );
+        var_dump_spec( $aTest, true );
         return $aServerFilmsTmp;
         
     }
@@ -725,7 +741,17 @@ function returnCDifArray( $colors ){
         if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 || $oGlobal->oFPPhone->aColoryProc["g"] > 60 || $oGlobal->oFPPhone->aColoryProc["r"] > 60){
             var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: TRUE", true);
             # mobile ma main color to teraz odfiltrujmy filmy
-            $aServerFilms = filtrFilmsForOnlyOneWithMainColor( $aServerFilms );
+            $aServerFilmsByMainColor = filtrFilmsForOnlyOneWithMainColor( $aServerFilms );
+            if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 ){
+                $aServerFilms = $aServerFilmsByMainColor["b"];
+            }
+            if ( $oGlobal->oFPPhone->aColoryProc["g"] > 60 ){
+                $aServerFilms = $aServerFilmsByMainColor["g"];
+            }
+            if ( $oGlobal->oFPPhone->aColoryProc["r"] > 60 ){
+                $aServerFilms = $aServerFilmsByMainColor["r"];
+            }
+            
         }
         else{
             var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: FALSE", true);
