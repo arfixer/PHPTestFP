@@ -313,10 +313,6 @@ function getFileJsonToArray( $filename ){
     
     
     $aReturn = array();
-   // var_dump_spec($json , true);
-//    $limit = 180; // 30sek 
-//    $limit = 120; // 20sek 
-//    $limit = 90; // 15sek 
     $limit = 20; // 10sek
 //    $limit = 30; // 6sek  
 //    $limit = 10; // 6sek
@@ -930,31 +926,69 @@ function returnCDifArray( $colors ){
     # preapre oGlobaldatas contain mobile FP Data
     $aDatas = $_REQUEST['datas'];
     $aMobileFrames = array();
+    
     foreach ( $aDatas AS $m_frame_id=>$sString){
+    
+//        var_dump_spec( $sString );
+//        [
+//        [[52,60],2,79],
+//        [[75,-50],6,90],
+//        1571,-1,-1,-1,-1,[-7.12,1.90],13]
+        
+        
         $aInfo = json_decode($sString);
-        $oFP = new FrameFingerprintMarcin( $aInfo[0], $aInfo[1], $aInfo[2], $aInfo[3], $aInfo[8], $aInfo[9] );
-        $oFP->setColors( array("b"=>$aInfo[4],"g"=>$aInfo[5],"r"=>$aInfo[6]));
+        
+//        var_dump_spec( $aInfo );
+        $vfakedall = $aInfo[0];
+        $vfakedcenter = $aInfo[1];
+        
+//        $oFP = new FrameFingerprintMarcin( $aInfo[0], $aInfo[1], $aInfo[2], $aInfo[3], $aInfo[8], $aInfo[9] );
+//        $oFP->setColors( array("b"=>$aInfo[4],"g"=>$aInfo[5],"r"=>$aInfo[6]));
+//        
+        $oFP = new FrameFingerprintMarcin();
+        $oFP->pt = new Cords($vfakedall[0][0], $vfakedall[0][1]);
+        $oFP->cwiartka = $vfakedall[1];
+        $oFP->dlugosc = $vfakedall[2];
+        $oFP->ptC = new Cords($vfakedcenter[0][0], $vfakedcenter[0][1]);
+        $oFP->cwiartkaC = $vfakedcenter[1];
+        $oFP->dlugoscC = $vfakedcenter[2];
+//
+        $oFP->sumaKP = $aInfo[2];
+        $oFP->grayVector = $aInfo[7];
+        $oFP->grayCwiartka = $aInfo[8];
+//
+//
+        
+        if ( $aInfo[4] > -1 ){
+            $oFP->setColors(array("b"=>$aInfo[3],"g"=>$aInfo[4],"r"=>$aInfo[5]/*,"y"=>$fp[6]*/));
+        }
+        
+
+//        var_dump_spec($oFP);
+        
         $aMobileFrames[$m_frame_id] = $oFP;
     }
 
     //DO AVG FRAME
-    $avrage = array('cwiartka' => 0,'grayCwiartka' => 0, 'grayVector'=>array(0,0)); #prevent notice
+    $avrage = array('cwiartka' => 0,'grayCwiartka' => 0, 'grayVector'=>array(0,0), 'cwiartkaC'=>0); #prevent notice
     $i = count($aMobileFrames);  #UPDATE
     foreach($aMobileFrames as $fr)
     {
         var_dump_spec( $fr->grayCwiartka, true );
         $avrage['cwiartka'] += $fr->cwiartka;
+        $avrage['cwiartkaC'] += $fr->cwiartkaC;
         $avrage['grayCwiartka'] += $fr->grayCwiartka;
         $avrage['grayVector'][0] += $fr->grayVector[0];
         $avrage['grayVector'][1] += $fr->grayVector[1];
     }
     # UPDATE : check zero value before using division .
     $avrage['cwiartka'] = ($avrage['cwiartka']?round($avrage['cwiartka']/$i):0);   #round value
+    $avrage['cwiartkaC'] = ($avrage['cwiartkaC']?round($avrage['cwiartkaC']/$i):0);   #round value
     $avrage['grayCwiartka'] = ($avrage['grayCwiartka']?round($avrage['grayCwiartka']/$i):0);
     $avrage['grayVector'][0] = ($avrage['grayVector'][0]?round($avrage['grayVector'][0]/$i, 2):0);
     $avrage['grayVector'][1] = ($avrage['grayVector'][1]?round($avrage['grayVector'][1]/$i, 2):0);
     
-//    var_dump_spec( $avrage, true );
+    var_dump_spec( $avrage, true );
     
     
     #STEP 2
