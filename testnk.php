@@ -226,6 +226,12 @@ class FrameFingerprintMarcin{
     public $cwiartka;
     public $dlugosc;
     public $sumaKP;
+    
+    public $ptC;
+    public $cwiartkaC;
+    public $dlugoscC;
+    
+    
     public $propDlSuma;
     public $aColory;
     public $aColoryProc;
@@ -236,25 +242,29 @@ class FrameFingerprintMarcin{
     public $grayCwiartka;
     
     
-    function FrameFingerprintMarcin( $cords, $cwiartka, $dlugosc, $sumaKP, $grayVector, $grayCwiartka ){
-        $this->pt = $cords;
-        $this->cwiartka = $cwiartka;
-        $this->dlugosc = $dlugosc;
-        $this->sumaKP = $sumaKP;
-        $this->grayVector = $grayVector;
-        $this->grayCwiartka = $grayCwiartka;
+    function FrameFingerprintMarcin(  ){
+        $this->pt = null;
+        $this->cwiartka = null;
+        $this->dlugosc = null;
+        $this->ptC = null;
+        $this->cwiartkaC = null;
+        $this->dlugoscC = null;
+        $this->sumaKP = null;
+        $this->grayVector = null;
+        $this->grayCwiartka = null;
+        
         
         $this->aColory = null;
         $this->aColoryProc = array("b"=>0, "g"=>0, "r"=>0);
         $this->aColoryNo = array("b"=>0, "g"=>0, "r"=>0);
         $this->film_id = null;
         
-        if( $this->sumaKP == 0 ){
-            $this->propDlSuma = 0;
-        }
-        else{
-            $this->propDlSuma = round($this->dlugosc / $this->sumaKP, 4);
-        }
+//        if( $this->sumaKP == 0 ){
+//            $this->propDlSuma = 0;
+//        }
+//        else{
+//            $this->propDlSuma = round($this->dlugosc / $this->sumaKP, 4);
+//        }
         return $this;
     }
     
@@ -321,10 +331,29 @@ function getFileJsonToArray( $filename ){
 //    var_dump( $klatka, $start, $koniec, "<br>" );
     for ( $key=$start; $key<$koniec; $key++){
         $fp = $aResult[$key];
-        $oFP = new FrameFingerprintMarcin(new Cords($fp[0][0], $fp[0][1]), $fp[1], $fp[2], $fp[3], $fp[8], $fp[9]);
+        $vfakedall = $fp[0];
+        $vfakedcenter = $fp[1];
+        
+//        var_dump_spec( $fp );
+        $oFP = new FrameFingerprintMarcin();
+        $oFP->pt = new Cords($vfakedall[0][0], $vfakedall[0][1]);
+        $oFP->cwiartka = $vfakedall[1];
+        $oFP->dlugosc = $vfakedall[2];
+        $oFP->ptC = new Cords($vfakedcenter[0][0], $vfakedcenter[0][1]);
+        $oFP->cwiartkaC = $vfakedcenter[1];
+        $oFP->dlugoscC = $vfakedcenter[2];
+        
+        $oFP->sumaKP = $fp[2];
+        $oFP->grayVector = $fp[7];
+        $oFP->grayCwiartka = $fp[8];
+        
+        
         if ( $fp[4] > -1 ){
-               $oFP->setColors(array("b"=>$fp[4],"g"=>$fp[5],"r"=>$fp[6]/*,"y"=>$fp[7]*/));
+               $oFP->setColors(array("b"=>$fp[3],"g"=>$fp[4],"r"=>$fp[5]/*,"y"=>$fp[6]*/));
         }
+        
+//        var_dump_spec( $oFP );
+        
         $aReturn[] = $oFP;
     }
     
