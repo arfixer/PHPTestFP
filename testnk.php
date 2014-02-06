@@ -117,9 +117,12 @@ class SuccessInfoFilm extends Film{
 //                var_dump_spec($oSuccessInfo->bGrayIgnore);
                 if (!$oSuccessInfo->bGrayIgnore){
                     
+                    var_dump_spec( "$this->idFilm !bGrayIgnore bGrayCwiartkaOK:");
+                    var_dump_spec( $oSuccessInfo->bGrayCwiartkaOK);
                     if ( $oSuccessInfo->bGrayCwiartkaOK ){
                         $this->punkty += 0.5;
                         $aBonusy['bGrayCwiartkaOK'] += 0.5;
+                        var_dump_spec( "$this->idFilm +0.5");
                     }
                     if ( $oSuccessInfo->bGrayCwiartkaDuzaRoznica ){
                         $this->punkty -= 0.5;
@@ -708,6 +711,7 @@ function returnCDifArray( $colors ){
                     $oSuccessObj->bGrayCwiartkaOK = true;
                 }
                 else{
+                    var_dump_spec ( "film: $idFilm -> CWIARTKA SZAROSCI NOT OK $oFP->grayCwiartka - $oFPFilm->grayCwiartka = $qdifGray", true);
                     $oSuccessObj->bGrayCwiartkaOK = false;
                 }
 //
@@ -746,9 +750,11 @@ function returnCDifArray( $colors ){
         $aFilmsSuccess = array();
         
         foreach ($aServerFilms as $key=>$aFilm) {
-            $oSuccessFilm = compareFPWithFilm($oFP, $aFilm ,$oGlobal, $key);
-            $punkty = $oSuccessFilm->getSuccessPoints( $oGlobal );
-            $aFilmsSuccess[$key] += $punkty;
+            if ( count($aFilm)){
+                $oSuccessFilm = compareFPWithFilm($oFP, $aFilm ,$oGlobal, $key);
+                $punkty = $oSuccessFilm->getSuccessPoints( $oGlobal );
+                $aFilmsSuccess[$key] += $punkty;
+            }
         }
         
         
@@ -809,6 +815,44 @@ function returnCDifArray( $colors ){
         
         return $aSumaSumarum;
         
+        
+    }
+    
+    function filtrFilmsForOnlyOneWithNearGrayVector( $aServerFilms, $cwiartka_telefon ){
+        var_dump_spec( $cwiartka_telefon );
+        $aServerFilmsTmp = array(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+        $aTest = array();
+        foreach( $aServerFilms AS $film_id=>$aFrames ){
+            if( count($aFrames) ){
+                foreach ( $aFrames AS $frame_id=>$oFP ){
+//
+
+                    $qdifGray = abs($cwiartka_telefon - $oFP->grayCwiartka);
+                    
+                    if ( $qdifGray <= 1 || $qdif >= 15  ){
+//                        var_dump_spec ( "CWIARTKA SZAROSCI VERY OK $film_id", true);
+//                        $aServerFilmsTmp[$film_id] = $aFrames;
+                        $aTest["SUPEROK"][$film_id]++;
+                    }
+                    if ( $qdifGray <= 2 || $qdif >= 14  ){
+//                        var_dump_spec ( "CWIARTKA SZAROSCI VERY OK $film_id", true);
+//                        $aServerFilmsTmp[$film_id] = $aFrames;
+                        $aTest["VERYOK"][$film_id]++;
+                    }
+                    if ( $qdifGray <= 4 || $qdif >= 12  ){
+//                        var_dump_spec ( "CWIARTKA SZAROSCI OK $film_id", true);
+                        $aServerFilmsTmp[$film_id] = $aFrames;
+                        $aTest["OK"][$film_id]++;
+                        //                      break;
+                    }
+                   
+                }
+            }
+        }
+        
+        var_dump_spec( "MOVIES WITH OK GRAY:", true );
+        var_dump_spec( $aTest, true );
+        return $aServerFilmsTmp;
         
     }
     
@@ -876,42 +920,61 @@ function returnCDifArray( $colors ){
             $countFilmsBasedOnLink++;
         }
     }
-//    $countFilmsBasedOnLink = count($aServerFilms);
-    #STEP 4 - jezeli tlefon m dominuajcy bardzo kolor to testuj dalerj tylko filmy posisdajace klatk iz dom kolorem
-    if (key_exists("CDF", $_REQUEST) && $_REQUEST['CDF'] == 1){
-        var_dump_spec( "FILTRATING CDF: ON", true);
-        var_dump_spec( $oGlobal->oFPPhone->aColoryProc, true);
-        if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 || $oGlobal->oFPPhone->aColoryProc["g"] > 60 || $oGlobal->oFPPhone->aColoryProc["r"] > 60){
-            var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: TRUE", true);
-            # mobile ma main color to teraz odfiltrujmy filmy
-            $aServerFilmsByMainColor = filtrFilmsForOnlyOneWithMainColor( $aServerFilms );
-            
-            if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 ){
-                $aServerFilms = $aServerFilmsByMainColor["b"];
-            }
-            if ( $oGlobal->oFPPhone->aColoryProc["g"] > 60 ){
-                $aServerFilms = $aServerFilmsByMainColor["g"];
-            }
-            if ( $oGlobal->oFPPhone->aColoryProc["r"] > 60 ){
-                $aServerFilms = $aServerFilmsByMainColor["r"];
-            }
-            
-        }
-        else{
-            var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: FALSE", true);
-        }
-    }
-    else{
-        var_dump_spec( "FILTRATING CDF: OFF", true);
-    }
     
+//    
+////    $countFilmsBasedOnLink = count($aServerFilms);
+//    #STEP 4 - jezeli tlefon m dominuajcy bardzo kolor to testuj dalerj tylko filmy posisdajace klatk iz dom kolorem
+//    if (key_exists("CDF", $_REQUEST) && $_REQUEST['CDF'] == 1){
+//        var_dump_spec( "FILTRATING CDF: ON", true);
+//        var_dump_spec( $oGlobal->oFPPhone->aColoryProc, true);
+//        if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 || $oGlobal->oFPPhone->aColoryProc["g"] > 60 || $oGlobal->oFPPhone->aColoryProc["r"] > 60){
+//            var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: TRUE", true);
+//            # mobile ma main color to teraz odfiltrujmy filmy
+//            $aServerFilmsByMainColor = filtrFilmsForOnlyOneWithMainColor( $aServerFilms );
+//            
+//            if ( $oGlobal->oFPPhone->aColoryProc["b"] > 60 ){
+//                $aServerFilms = $aServerFilmsByMainColor["b"];
+//            }
+//            if ( $oGlobal->oFPPhone->aColoryProc["g"] > 60 ){
+//                $aServerFilms = $aServerFilmsByMainColor["g"];
+//            }
+//            if ( $oGlobal->oFPPhone->aColoryProc["r"] > 60 ){
+//                $aServerFilms = $aServerFilmsByMainColor["r"];
+//            }
+//            
+//        }
+//        else{
+//            var_dump_spec( "FILTRATING CDF: MOBILE MAIN COLOR: FALSE", true);
+//        }
+//    }
+//    else{
+//        var_dump_spec( "FILTRATING CDF: OFF", true);
+//    }
+//    
+//    if ( count($aServerFilms) == 0 ){ //jak przedobrzymy
+//        $aServerFilms = $aServerFilmsOld;
+//    }
+//
+    
+    #STEPX
+//    przelec po filmach i zostaw tylko te ze zgodnym wektorem +- 3 cwiartki gray
+    var_dump_spec( "STEP X: odwalamy filmy ze zlymiy skeirowaniami szarosci" );
+    $aServerFilms = filtrFilmsForOnlyOneWithNearGrayVector( $aServerFilms, $oGlobal->oFPPhone->grayCwiartka  );
+    var_dump_spec( $aServerFilms );
     if ( count($aServerFilms) == 0 ){ //jak przedobrzymy
         $aServerFilms = $aServerFilmsOld;
     }
     
     #STEP 5 - give points 1.0 for FAST KP Quatter ok
 //    $aHitCounts = comapareMain( $aMobileFrames, $aServerFilms, $oGlobal );
+    
+    
+    
+    
     $aHitCounts = comapareMainGlobalOnly( $aServerFilms, $oGlobal );
+    
+    
+    
     
     
     
