@@ -117,16 +117,17 @@ class SuccessInfoFilm extends Film{
 //                var_dump_spec($oSuccessInfo->bGrayIgnore);
                 if (!$oSuccessInfo->bGrayIgnore){
                     
-                    var_dump_spec( "$this->idFilm !bGrayIgnore bGrayCwiartkaOK:");
-                    var_dump_spec( $oSuccessInfo->bGrayCwiartkaOK);
-                    if ( $oSuccessInfo->bGrayCwiartkaOK ){
-                        $this->punkty += 0.5;
-                        $aBonusy['bGrayCwiartkaOK'] += 0.5;
-                        var_dump_spec( "$this->idFilm +0.5");
-                    }
+//                    var_dump_spec( "$this->idFilm !bGrayIgnore bGrayCwiartkaOK:");
+//                    var_dump_spec( $oSuccessInfo->bGrayCwiartkaOK);
+//                    if ( $oSuccessInfo->bGrayCwiartkaOK ){
+//                        $this->punkty += 0.5;
+//                        $aBonusy['bGrayCwiartkaOK'] += 0.5;
+//                        var_dump_spec( "$this->idFilm +0.5");
+//                    }
                     if ( $oSuccessInfo->bGrayCwiartkaDuzaRoznica ){
                         $this->punkty -= 0.5;
                         $aBonusy['bGrayCwiartkaDuzaRoznica'] -= 0.5;
+                        var_dump_spec( "$this->idFilm !bGrayIgnore bGrayCwiartkaDuzaRoznica");
                     }
                 }
             
@@ -477,7 +478,7 @@ function returnCDifArray( $colors ){
                 
                 
                 $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka);
-                if ( $qdif <= 1 || $qdif >= 15  ){
+                if ( $qdif <= 2 || $qdif >= 14  ){
                     $oSuccessObj->bKPOK = true;
                     var_dump_spec( "CWIARTKA OK with film frame: $oFP->cwiartka  $oFPFilm->cwiartka => $qdif", true );
                 }
@@ -704,8 +705,8 @@ function returnCDifArray( $colors ){
                 $qdifGray = abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka);
                 
                 
-                if ( $qdifGray <= 1 || $qdif >= 15  ){
-                    var_dump_spec ( "CWIARTKA SZAROSCI OK $qdifGray", true);
+                if ( $qdifGray <= 2 || $qdif >= 14  ){
+//                    var_dump_spec ( "CWIARTKA SZAROSCI OK $qdifGray", true);
   
 //                if (  $oFP->grayCwiartka == $oFPFilm->grayCwiartka ){
                     $oSuccessObj->bGrayCwiartkaOK = true;
@@ -715,15 +716,17 @@ function returnCDifArray( $colors ){
                     $oSuccessObj->bGrayCwiartkaOK = false;
                 }
 //
-                if ( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) <=2 ){
-                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
-                }
-                elseif( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) >= 14){ //przyapdek gdy cwiartki 15,1 14,0
-                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
-                }
-                else{
-                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = true;
-                }
+                
+//                
+//                if ( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) <=2 ){
+//                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
+//                }
+//                elseif( abs($oFP->grayCwiartka - $oFPFilm->grayCwiartka) >= 14){ //przyapdek gdy cwiartki 15,1 14,0
+//                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = false;
+//                }
+//                else{
+//                    $oSuccessObj->bGrayCwiartkaDuzaRoznica = true;
+//                }
 //
 //                
                 
@@ -826,20 +829,20 @@ function returnCDifArray( $colors ){
             if( count($aFrames) ){
                 foreach ( $aFrames AS $frame_id=>$oFP ){
 //
-
                     $qdifGray = abs($cwiartka_telefon - $oFP->grayCwiartka);
                     
-                    if ( $qdifGray <= 1 || $qdif >= 15  ){
-//                        var_dump_spec ( "CWIARTKA SZAROSCI VERY OK $film_id", true);
-//                        $aServerFilmsTmp[$film_id] = $aFrames;
-                        $aTest["SUPEROK"][$film_id]++;
-                    }
-                    if ( $qdifGray <= 2 || $qdif >= 14  ){
-//                        var_dump_spec ( "CWIARTKA SZAROSCI VERY OK $film_id", true);
-//                        $aServerFilmsTmp[$film_id] = $aFrames;
-                        $aTest["VERYOK"][$film_id]++;
-                    }
-                    if ( $qdifGray <= 4 || $qdif >= 12  ){
+                                  
+//                    if ( $qdifGray <= 1 || $qdif >= 15  ){
+////                        var_dump_spec ( "CWIARTKA SZAROSCI VERY OK $film_id", true);
+////                        $aServerFilmsTmp[$film_id] = $aFrames;
+//                        $aTest["SUPEROK"][$film_id]++;
+//                    }
+//                    if ( $qdifGray <= 2 || $qdif >= 14  ){
+////                        var_dump_spec ( "CWIARTKA SZAROSCI VERY OK $film_id", true);
+////                        $aServerFilmsTmp[$film_id] = $aFrames;
+//                        $aTest["VERYOK"][$film_id]++;
+//                    }
+                    if ( $qdifGray <= 3 || $qdif >= 13  ){
 //                        var_dump_spec ( "CWIARTKA SZAROSCI OK $film_id", true);
                         $aServerFilmsTmp[$film_id] = $aFrames;
                         $aTest["OK"][$film_id]++;
@@ -855,6 +858,34 @@ function returnCDifArray( $colors ){
         return $aServerFilmsTmp;
         
     }
+    
+    
+    function filtrFilmsForOnlyOneWithNearGraySila( $aServerFilms, $sila ){
+        var_dump_spec( "filtrFilmsForOnlyOneWithNearGraySila" );
+        $maxdiff_ok = $sila * 0.75;
+        $maxdiff_ok = $maxdiff_ok < 5 ? 5 : $maxdiff_ok;
+        var_dump_spec( "sila: $sila maxdif: $maxdiff_ok");
+        $aServerFilmsTmp = array(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+        $aTest = array();
+        foreach( $aServerFilms AS $film_id=>$aFrames ){
+            if( count($aFrames) ){
+                foreach ( $aFrames AS $frame_id=>$oFP ){
+                    //
+                    $sila_fp = round(sqrt(pow($oFP->grayVector[0],2) + pow($oFP->grayVector[1],2)), 2);
+                    $diffsilafp = abs($sila_fp - $sila);
+//                    var_dump_spec("$film_id=> $diffsilafp = abs($sila_fp - $sila);");
+                    if ( $diffsilafp <= $maxdiff_ok ){
+                        $aServerFilmsTmp[$film_id] = $aFrames;
+                        $aTest["OK"][$film_id]++;
+                    }
+                }
+            }
+        }
+        var_dump_spec( "MOVIES WITH OK SILA:", true );
+        var_dump_spec( $aTest, true );
+        return $aServerFilmsTmp;
+    }
+    
     
     
     
@@ -960,7 +991,11 @@ function returnCDifArray( $colors ){
 //    przelec po filmach i zostaw tylko te ze zgodnym wektorem +- 3 cwiartki gray
     var_dump_spec( "STEP X: odwalamy filmy ze zlymiy skeirowaniami szarosci" );
     $aServerFilms = filtrFilmsForOnlyOneWithNearGrayVector( $aServerFilms, $oGlobal->oFPPhone->grayCwiartka  );
-    var_dump_spec( $aServerFilms );
+    
+    $sila = round(sqrt(pow($oGlobal->oFPPhone->grayVector[0],2) + pow($oGlobal->oFPPhone->grayVector[1],2)), 2);
+    var_dump_spec( $oGlobal->oFPPhone->grayVector );
+    $aServerFilms = filtrFilmsForOnlyOneWithNearGraySila( $aServerFilms, $sila );
+//    var_dump_spec( $aServerFilms );
     if ( count($aServerFilms) == 0 ){ //jak przedobrzymy
         $aServerFilms = $aServerFilmsOld;
     }
@@ -998,7 +1033,7 @@ $suma = array_sum($aHitCounts);
     
     
     
-    var_dump_spec( $aHitCountsProp, true );
+//    var_dump_spec( $aHitCountsProp, true );
     
     echo json_encode( $aHitCountsProp, JSON_FORCE_OBJECT );
     
