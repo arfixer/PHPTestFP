@@ -48,13 +48,28 @@ class SuccessInfoFilm extends Film{
         
         
         $aBonusy = array("bKPOK"=>0,"bKPNO"=>0,"bKPCenterOK"=>0,"bKPCenterNO"=>0,
-                         "bColoryNoSame"=>0,"bColoryNoDiff"=>0, "bGrayCwiartkaOK"=>0,"bGrayCwiartkaDuzaRoznica"=>0);
+                         "bColoryNoSame"=>0,"bColoryNoDiff"=>0, "bGrayCwiartkaOK"=>0,"bGrayCwiartkaDuzaRoznica"=>0, "bSRCPblisko"=>0, "bSRC0blisko"=>0,"bSRClipa"=>0 );
         
         if (is_array($this->aSuccessInfoObjs) ){
             $aBonusy['tested'] = 1;
             
             foreach ($this->aSuccessInfoObjs as $klatka_filmu => $oSuccessInfo) {
             
+//                var_dump_spec( "$this->idFilm/$klatka_filmu liczebnekratkiw kaltce podbne:". $oSuccessInfo->bSRCPblisko );
+                if ( $oSuccessInfo->bSRCPblisko === true ){
+                    $this->punkty += 1;
+                    $aBonusy['bSRCPblisko'] += 1;
+                }
+                if ( $oSuccessInfo->bSRC0blisko === true ){
+                    $this->punkty += 0.5;
+                    $aBonusy['bSRC0blisko'] += 0.5;
+                }
+                
+                if ( $oSuccessInfo->bSRCPblisko !== true &&  $oSuccessInfo->bSRC0blisko !== true ){
+                    $this->punkty -= 1;
+                    $aBonusy['bSRClipa'] -= 1;
+                }
+                
                 
 //                if ( $oSuccessInfo->bKPOK ){
 //                    $this->punkty += 0.5;
@@ -65,15 +80,15 @@ class SuccessInfoFilm extends Film{
 //                    $aBonusy['bKPNO'] -= 0.5;
 //                }
                 
-                if ( $oSuccessInfo->bKPOK /*&& $oSuccessInfo->bKPCenterOK*/ ){
-                    $this->punkty += 0.5;
-                    $aBonusy['bKPCenterOK'] += 0.5;
-                }
-                if ( $oSuccessInfo->bKPNO /*&& $oSuccessInfo->bKPCenterNO*/ ){
-                    $this->punkty -= 0.5;
-                    $aBonusy['bKPCenterNO'] -= 0.5;
-                }
-                
+//                if ( $oSuccessInfo->bKPOK /*&& $oSuccessInfo->bKPCenterOK*/ ){
+//                    $this->punkty += 0.5;
+//                    $aBonusy['bKPOK'] += 0.5;
+//                }
+//                if ( $oSuccessInfo->bKPNO /*&& $oSuccessInfo->bKPCenterNO*/ ){
+//                    $this->punkty -= 0.5;
+//                    $aBonusy['bKPNO'] -= 0.5;
+//                }
+//                
                 
                 
                 
@@ -161,6 +176,7 @@ class SuccessInfo{
     public $oFPFilm;
     public $oFPPhone;
     public $oGlobal;
+    public $bSRCPblisko;
     public $bKPOK;
     public $bKPNO;
     public $bKPCenterOK;
@@ -191,6 +207,7 @@ class SuccessInfo{
         $this->oGlobal = $oGlobal;
         $this->bKPOK = $bKPOK;
         $this->bKPNO = -1;
+        $this->bSRCPblisko = -1;
         $this->bKPCenterOK = -1;
         $this->bKPCenterNO = -1;
         $this->bMainColorOK = $bMainColorOK;
@@ -257,6 +274,9 @@ class FrameFingerprintMarcin{
     public $grayVector;
     public $grayCwiartka;
     
+    public $src_q;
+    public $src_qp;
+    
     
     function FrameFingerprintMarcin(  ){
         $this->pt = null;
@@ -267,7 +287,8 @@ class FrameFingerprintMarcin{
         $this->dlugoscC = null;
         $this->sumaKP = null;
         $this->grayVector = null;
-        $this->grayCwiartka = null;
+        $this->src_q = null;
+        $this->src_qp = null;
         
         
         $this->aColory = null;
@@ -326,6 +347,7 @@ function getFileJsonToArray( $filename ){
     $json = str_replace( "],]", "]]", file_get_contents($filename));
     $aResult = json_decode($json);
    
+//    var_dump_spec($aResult);
     
     
     $aReturn = array();
@@ -358,6 +380,10 @@ function getFileJsonToArray( $filename ){
         $oFP->sumaKP = $fp[2];
         $oFP->grayVector = $fp[7];
         $oFP->grayCwiartka = $fp[8];
+        
+        $oFP->src_q = $fp[10];
+        $oFP->src_qp = $fp[11];
+        
         
         
         if ( $fp[4] > -1 ){
@@ -394,6 +420,7 @@ function convertRecivedDatas( $aRecivedDatas, $oGlobal ){
                $oGlobal->aColors = $oFP->aColory;
                 $oGlobal->oFPPhone = $oFP;
             }
+            
             
             
             
@@ -505,24 +532,86 @@ function returnCDifArray( $colors ){
      */
     function compareFPWithFilm($oFP, $aFilm, $oGlobal, $idFilm ){
         $aFilmSuccess = array();
-        //var_dump_spec( $oFP, true );
        
         $oFilmSuccess = new SuccessInfoFilm($idFilm);
         
         
-        
+        $podobienstwoSRCPTotalZero = 0;
+        $podobienstwoSRCPTotal = 0;
         if (is_array($aFilm) )
             foreach ($aFilm as $key=>$oFPFilm) {
                 
-                //        var_dump ( $oFPFilm );
                 $oSuccessObj = new SuccessInfo($idFilm, $oFPFilm, $oFP, $oGlobal);
                 
+                
+                
+                
+//                var_dump_spec ( "film: $idFilm ->");
+//                var_dump_spec ( $oFP->src_qp );
+//                var_dump_spec ( $oFPFilm->src_qp );
+                $podobienstwoSRCP = 0;
+                $podobienstwoSRCPCount = 0;
+                $podobienstwoSRCPZero = 0;
+                $podobienstwoSRCPZeroCount = 0;
+                for( $q=0; $q<24; $q++){
+                    $diffsrc = abs($oFPFilm->src_qp[$q] - $oFP->src_qp[$q]);
+//                    $propsrc = $oFPFilm->src_qp[$q] / $oFP->src_qp[$q];
+//                    if ($diffsrc <= 5 && )
+                    if ( $oFPFilm->src_qp[$q] >= 10 ){
+                        $podobienstwoSRCPCount++;
+                        $propsrc = $oFP->src_qp[$q] / $oFPFilm->src_qp[$q] ;
+                        if ( $propsrc <= 2.0 && $propsrc >= 0.5){
+//                            var_dump_spec ( "MORE10 - q:$q cam:". $oFP->src_qp[$q] ." - film:".$oFPFilm->src_qp[$q] . " film-cam:$diffsrc cam/film:$propsrc " );
+                            $podobienstwoSRCP++;
+                            
+                        }
+                    }
+                    else if ( $oFPFilm->src_qp[$q] >= 5 ){
+                        $podobienstwoSRCPCount++;
+                        $propsrc = $oFP->src_qp[$q] / $oFPFilm->src_qp[$q] ;
+                        if ( $propsrc <= 2.0 && $propsrc >= 0.5){
+//                            var_dump_spec ( "MORE5 - q:$q cam:". $oFP->src_qp[$q] ." - film:".$oFPFilm->src_qp[$q] . " film-cam:$diffsrc cam/film:$propsrc " );
+                            $podobienstwoSRCP++;
+                            
+                        }
+                    }
+                    
+                    else if ( $oFPFilm->src_qp[$q] == 0 ){
+                        $podobienstwoSRCPZeroCount++;
+                        if ( $diffsrc == 0 ){
+//                         var_dump_spec ( "ZERO 0 - q:$q cam:". $oFP->src_qp[$q] ." - film:".$oFPFilm->src_qp[$q] . " film-cam:$diffsrc" );
+                            $podobienstwoSRCPZero++;
+//                            $podobienstwoSRCPTotalZero++;
+                        }
+                    }
+                }
+                if ( $podobienstwoSRCPCount ){
+                    if ( $podobienstwoSRCP/$podobienstwoSRCPCount >= 0.5 ){
+                        $podobienstwoSRCPTotal++;
+                        $oSuccessObj->bSRCPblisko=true;
+                        //
+                    }
+                }
+                
+                if ( $podobienstwoSRCPZeroCount ){
+//                    var_dump_spec ( "film: $idFilm klatka Filmu: $key -> podobienstwo: $podobienstwoSRCP/$podobienstwoSRCPCount podobZero:  $podobienstwoSRCPZero/$podobienstwoSRCPZeroCount ");
+                    if ( $podobienstwoSRCPZero/$podobienstwoSRCPZeroCount >= 0.5 ){
+                        $podobienstwoSRCPTotalZero++;
+                        $oSuccessObj->bSRC0blisko=true;
+                        //
+                    }
+                }
+                
+                
+                
+                
+//                $bSRCPblisko
                 
                 $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka);
                 if ( $qdif <= 2 || $qdif >= 14  ){
                     $oSuccessObj->bKPOK = true;
 //                    var_dump_spec( "CWIARTKA OK with film frame: $oFP->cwiartka  $oFPFilm->cwiartka => $qdif", true );
-                    var_dump_spec ( "film: $idFilm -> CWIARTKA FAKED OK $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka)", true);
+//                    var_dump_spec ( "film: $idFilm -> CWIARTKA FAKED OK $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka)", true);
                 }
                 else{
                     $oSuccessObj->bKPOK = false;
@@ -531,7 +620,7 @@ function returnCDifArray( $colors ){
                 
                 if ( $qdif >= 5 && $qdif <= 11  ){
                     $oSuccessObj->bKPNO = true;
-                    var_dump_spec ( "film: $idFilm -> CWIARTKA FAKED TOTALLY WRONG $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka)", true);
+//                    var_dump_spec ( "film: $idFilm -> CWIARTKA FAKED TOTALLY WRONG $qdif = abs($oFP->cwiartka - $oFPFilm->cwiartka)", true);
                     
                 }
                 else{
@@ -544,7 +633,7 @@ function returnCDifArray( $colors ){
                 if ( $qdif2 <= 2 || $qdif2 >= 14  ){
                     $oSuccessObj->bKPCenterOK = true;
                     //                    var_dump_spec( "CWIARTKA OK with film frame: $oFP->cwiartka  $oFPFilm->cwiartka => $qdif", true );
-                    var_dump_spec ( "film: $idFilm -> CWIARTKA FAKED CENTER OK $qdif2 = abs($oFP->cwiartkaC - $oFPFilm->cwiartkaC)", true);
+//                    var_dump_spec ( "film: $idFilm -> CWIARTKA FAKED CENTER OK $qdif2 = abs($oFP->cwiartkaC - $oFPFilm->cwiartkaC)", true);
                 }
                 else{
                     $oSuccessObj->bKPCenterOK = false;
@@ -807,6 +896,9 @@ function returnCDifArray( $colors ){
                 $oFilmSuccess->addSuccess($oSuccessObj);     
             }//end foreach
         
+        
+        var_dump_spec ( "film: $idFilm lacznie -> podobienstwo: $podobienstwoSRCPTotal podobZero:  $podobienstwoSRCPTotalZero");
+        
         //    var_dump_spec($aFilmSuccessObj, true);
         return $oFilmSuccess;
     }
@@ -842,6 +934,7 @@ function returnCDifArray( $colors ){
     function comapareMain( $aRecivedFP, $aServerFilms, $oGlobal ){
         
         var_dump_spec( "COMPARE MAIN BEGIN", true);
+//        var_dump_spec( $aRecivedFP);
         
         $aFPSuccess = array();
         $aSumaSumarum = array();
@@ -987,6 +1080,7 @@ function returnCDifArray( $colors ){
         
         $aInfo = json_decode($sString);
         
+//        var_dump_spec( $sString );
 //        var_dump_spec( $aInfo );
         $vfakedall = $aInfo[0];
         $vfakedcenter = $aInfo[1];
@@ -1006,6 +1100,9 @@ function returnCDifArray( $colors ){
         $oFP->grayVector = $aInfo[7];
         $oFP->grayCwiartka = $aInfo[8];
 //
+        $oFP->src_q = $aInfo[9];
+        $oFP->src_qp = $aInfo[10];
+        
 //
         
         if ( $aInfo[4] > -1 ){
@@ -1013,7 +1110,6 @@ function returnCDifArray( $colors ){
         }
         
 
-//        var_dump_spec($oFP);
         
         $aMobileFrames[$m_frame_id] = $oFP;
     }
@@ -1129,6 +1225,18 @@ function returnCDifArray( $colors ){
 //    if ( count($aServerFilms) == 0 ){ //jak przedobrzymy
 //        $aServerFilms = $aServerFilmsOld;
 //    }
+    
+//    #STEP CWIARTKI ?
+//    var_dump_spec( "WYDUPIaMY CIWARTKI?" );
+//    foreach( $aServerFilms AS $key=>$filmKlatki ){
+//        var_dump_spec( "<hr>FILM: $key" );
+//        foreach( $filmKlatki AS $frameid=>$klatka ){
+//            var_dump_spec( "<hr>Klatka: $$frameid" );
+//            var_dump_spec( $klatka->src_qp );
+//            var_dump_spec( $klatka->src_qp );
+//        }
+//    }
+//    
     
     
     
