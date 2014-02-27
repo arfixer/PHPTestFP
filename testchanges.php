@@ -1616,7 +1616,7 @@ function returnCDifArray( $colors ){
         
        
       $aKPCombination = array();
-        for( $i=0; $i<100-$probeFramesCount+1; $i++ ){
+        for( $i=0; $i<75-$probeFramesCount+1; $i++ ){
             $aSliced = array_slice( $aFilmAsset["kp"], $i, $probeFramesCount );
             $aFilmAsset['combos']["kpCombo"][] = $aSliced;
             $aSliced = array_slice( $aFilmAsset["kpDif"], $i, $probeFramesCount );
@@ -1663,99 +1663,40 @@ function returnCDifArray( $colors ){
     $aZgodneSety = array();
     for ( $p=0; $p<=9; $p++ ){
     var_dump_spec( ":<hr/>Badana Probka $p:<hr/>" );
-        $aZgodneSety = testFilmyProbka( $aProbkaXXX[$p], $aFilmyAsset, $probeFramesCount );
-        var_dump_spec( $aZgodneSety );
+        testFilmyProbka( $aProbkaXXX[$p], $aFilmyAsset, $probeFramesCount );
     }
-    
-    
-    
-    
-    
-//    for ( $filmid=0; $filmid<=9; $filmid++){
-//        $aCombos = $aFilmyAsset[$filmid]["combos"];
-//        
-//  
-//        
-        
-//        $aX = getCorrectRangesQ($aCombos, $aProbka, $probeFramesCount, 1);
-//        var_dump_spec( count($aX) );
-//        $sumaKlatekWybranych += count($aX);
-//        foreach ($aX as $key => $value) {
-//            echo "$key,";
-//        }
-        
-        
-        
-//        $bX = getCorrectRangesQSTR($aCombos, $aProbka, $probeFramesCount, 1);
-//        var_dump_spec( count($bX) );
-////        $sumaKlatekWybranych += count($bX);
-//        foreach ($bX as $key => $value) {
-//            echo "$key,";
-//        }
-        
-//        $aRangesCorrectCombos = getCorrectRangesCombos( $aCombos["kpComboDif"], $aProbka["kpDif"], $probeFramesCount, 1);
-//        $aRangesCorrectCombosT = getCorrectRangesCombos( $aCombos["kpTComboDif"], $aProbka["kpTDif"], $probeFramesCount, 1);
-//        $aRangesCorrectCombosB = getCorrectRangesCombos( $aCombos["kpBComboDif"], $aProbka["kpBDif"], $probeFramesCount, 1);
-//        $aRangesCorrectCombosL = getCorrectRangesCombos( $aCombos["kpLComboDif"], $aProbka["kpLDif"], $probeFramesCount, 1);
-//        $aRangesCorrectCombosR = getCorrectRangesCombos( $aCombos["kpRComboDif"], $aProbka["kpRDif"], $probeFramesCount, 1);
-//        
-//        $aTB = array_intersect_key($aRangesCorrectCombosT, $aRangesCorrectCombosB);
-//        $aLR = array_intersect_key($aRangesCorrectCombosL, $aRangesCorrectCombosR);
-//        $aTBLR = array_intersect_key($aTB, $aLR);
-//        $aAll = array_intersect_key($aTBLR, $aRangesCorrectCombos);
-//        
-//        var_dump_spec("PROBKA film $filmid:   " . count($aRangesCorrectCombos) . "
-//            . ". count($aRangesCorrectCombosT) . " " . count($aRangesCorrectCombosB) . 
-//                " " . count($aRangesCorrectCombosL) . " " . count($aRangesCorrectCombosR) . 
-//                " => " . count($aAll ) );
-//
-//        var_dump_spec( $aAll[$probeFrameStart] );
-//        
-//        var_dump_spec("<hr>");
-//    }
-    
-        
-     
     
     
     
     exit;
     
     
-//    var_dump_spec( $aHitCountsProp, true );
     
     echo json_encode( $aHitCountsProp, JSON_FORCE_OBJECT );
-    
     
     function przetestujColory( $aProbka, $aFilmyAsset, $probeFramesCount ){
         $aZgodnosci = array();
         for ( $filmid=0; $filmid<=9; $filmid++){
-            
             $aCombos = $aFilmyAsset[$filmid]["combos"];
-
             $aB = getCorrectRangesG($aCombos, $aProbka, $probeFramesCount, 10, 20, "colorB", $filmid);
             $aG = getCorrectRangesG($aCombos, $aProbka, $probeFramesCount, 10, 20, "colorG", $filmid);
             $aR = getCorrectRangesG($aCombos, $aProbka, $probeFramesCount, 10, 20, "colorR", $filmid);
 
             $aGR = array_intersect_key($aG, $aR);
             $aAll = $aGR;
+            
 //            $aAll = array_intersect_key($aBG, $aR);
 //            foreach ($aAll as $key => $value) {
 //                echo "$key,";
 //            }
-
-            $sumaKlatekWybranych += count($aAll);
-            if ( count($aAll) ){
-            var_dump_spec("PROBKA film $filmid:   B:" . count($aB) . "  G:". count($aG) . "  R:" . count($aR) . 
-                    " => ALL:" . count($aAll ) );
-            }
+//            if ( count($aAll) ){
+//            var_dump_spec("PROBKA film $filmid:   B:" . count($aB) . "  G:". count($aG) . "  R:" . count($aR) . 
+//                    " => ALL:" . count($aAll ) );
+//            }
 
             $aZgodnosci[$filmid] = $aAll;
         }
         
-        $sumaWszystkich = $filmid * 100;
-        $prop = round((($sumaKlatekWybranych+30) / $sumaWszystkich) * 100, 2);
-//        var_dump_spec("suma wybranych: $sumaKlatekWybranych suma wszystkich: $sumaWszystkich => $prop%");
         return $aZgodnosci;
     }
     
@@ -1763,22 +1704,116 @@ function returnCDifArray( $colors ){
         $aZgodneKolory = przetestujColory($aProbka, $aFilmyAsset, $probeFramesCount);
         $aZgodneQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount);
     
+        $aZgodneQSTR = przetestujQSTR($aProbka, $aFilmyAsset, $probeFramesCount);
+        
+        
+        
+        
+        $c = 0;
         
         for ( $filmid=0; $filmid<=9; $filmid++ ){
             $aX = array_intersect_key($aZgodneKolory[$filmid], $aZgodneQ[$filmid]);
-            if( count($aX) ){
-                var_dump_spec("<hr>ZGODNOSC KOLOR + Q dl filmu: $filmid:" . count($aX) );
-                foreach ($aX as $key => $value) {
-                echo "$key,";
+            $aX2 = array_intersect_key($aX, $aZgodneQSTR[$filmid]);
+            
+//            if( count($aX) ){
+//                var_dump_spec("ZGODNOSC KOLOR + Q dl filmu: $filmid:" . count($aX) );
+//                $c += count($aX);
+//                foreach ($aX as $key => $value) {
+//                    echo "$key,";
+//                }
+//            }
+            
+            
+            if( count($aX2) ){
+                var_dump_spec("ZGODNOSC KOLOR + Q + QSTR dl filmu: $filmid:" . count($aX2) );
+                $c += count($aX2);
+                foreach ($aX2 as $key => $value) {
+                    echo "$key,";
+                }
             }
-            }
+            
+            
+            
 //            var_dump_spec($aX);
+            
         }
-//        var_dump_spec( $aZgodneKolory );
+        $call = $filmid * 45;
+        $p = round(100*$c/$call, 2);
+        var_dump_spec( "<B>$c / $call = $p%</b>"  );
 //        var_dump_spec( $aZgodneQ );
         
 //        return $aAll;
     }
+    
+    
+    function przetestujQSTR( $aProbka, $aFilmyAsset, $probeFramesCount ){
+        $aZgodnosci = array();
+        for ( $filmid=0; $filmid<=9; $filmid++){
+            
+            $aCombos = $aFilmyAsset[$filmid]["combos"];
+            $aX = getCorrectRangesQSTR($aCombos, $aProbka, $probeFramesCount, 5, $filmid);
+            
+//            if (count($aX) > 0 || true  ){ var_dump_spec( "qstrtest: filmid: $filmid => ". count($aX) ); };
+            $sumaKlatekWybranych += count($aX);
+//            foreach ($aX as $key => $value) {
+//                echo "$key,";
+//            }
+            $aZgodnosci[$filmid] = $aX;
+        }
+        return $aZgodnosci;
+    }
+    
+    
+    function getCorrectRangesQSTR( $aCombosFilm, $danezprobki, $probeFramesCount, $delta = 0, $filmid ){
+        $aRangesCorrectCombos = array();  
+        for ( $set=0; $set<count($aCombosFilm['qstr']); $set++){
+            $aCombo = $aCombosFilm['qstr'][$set];
+            $aBits = array();
+            foreach( $aCombo AS $ii=>$kpstr ){
+                
+                $qdiff = abs( $kpstr - $danezprobki['qstr'][$ii] );
+                
+//                if ( $kpstr $qdiff <= 100 ){
+                    
+//                }
+                if ( $qdiff <= 100 ){
+//                    var_dump_spec( "filmid: $filmid => set: $set " . $kpstr . " ??? " . $danezprobki['qstr'][$ii] . " => " . $qdiff );
+                    $aBits[$ii] = 1;
+                }
+                elseif( $kpstr >= 250 && $qdiff <= $kpstr * 0.66 ){
+                    $aBits[$ii] = 1;
+                }
+                elseif( $kpstr >= 500 && $qdiff <= $kpstr * 0.66 ){
+                    $aBits[$ii] = 1;
+                }
+                elseif( $kpstr >= 750 && $qdiff <= $kpstr * 0.66 ){
+                    $aBits[$ii] = 1;
+                }
+                elseif( $kpstr >= 1000 && $qdiff <= $kpstr * 0.66 ){
+                    $aBits[$ii] = 1;
+                }
+                
+                elseif( $kpstr >= 1000 && $danezprobki['qstr'][$ii] >= 500 ){
+                    $aBits[$ii] = 1;
+                }
+                elseif( $kpstr <= 300 && $danezprobki['qstr'][$ii] <= 300 ){
+                    $aBits[$ii] = 1;
+                }
+                else{
+//                    if ( $filmid == 7)
+//                        var_dump_spec( "filmid: $filmid => set: $set " . $kpstr . " ??? " . $danezprobki['qstr'][$ii] . " => " . $qdiff );
+//                    }
+                }
+            }
+            
+            if ( array_sum( $aBits ) >= $probeFramesCount - $delta  ){
+                $aRangesCorrectCombos[$set] = 1;
+            }
+        }
+        return $aRangesCorrectCombos;
+    }
+    
+    
     
     
     function przetestujQ( $aProbka, $aFilmyAsset, $probeFramesCount ){
@@ -1787,7 +1822,7 @@ function returnCDifArray( $colors ){
             
             $aCombos = $aFilmyAsset[$filmid]["combos"];
             $aX = getCorrectRangesQ($aCombos, $aProbka, $probeFramesCount, 5, $filmid);
-            if (count($aX) > 0 ){ var_dump_spec( "filmid: $filmid => ". count($aX) ); };
+//            if (count($aX) > 0 ){ var_dump_spec( "filmid: $filmid => ". count($aX) ); };
             $sumaKlatekWybranych += count($aX);
 //            foreach ($aX as $key => $value) {
 //                echo "$key,";
@@ -1806,9 +1841,6 @@ function returnCDifArray( $colors ){
             $aBits = array();
             foreach( $aCombo AS $ii=>$kp ){
                 
-                
-                
-                
                 $qdiff = abs( $kp - $danezprobki['q'][$ii] );
                 if ( $qdiff <= 2 || $qdiff >= 14  ){
                     $aBits[$ii] = 1;
@@ -1823,15 +1855,6 @@ function returnCDifArray( $colors ){
 //                            var_dump_spec( "filmid: $filmid => " . $aCombosFilm['qstr'][$set][$ii] . " ??? " . $danezprobki['qstr'][$ii] . " => " . $difstr );
 //                        }
                     }
-//                    
-//                        
-//                        if ( $difstr < 50 ){
-//                            $aBits[$ii] = 1;
-//                        }
-////                        var_dump_spec( $aCombosFilm['qstr'][$set][$ii] . " ??? " . $danezprobki['qstr'][$ii] . " => " . $difstr );  
-//                    }
-//                    var_dump_spec( $aCombosFilm['qstr'][$set][$ii] . " ??? " . $danezprobki['qstr'][$ii] . " => " . $difstr );
-                    
                 }
             }
             
@@ -1841,68 +1864,6 @@ function returnCDifArray( $colors ){
         }
         return $aRangesCorrectCombos;
     }
-    
-    
-    
-    
-     function getCorrectRangesQSTR( $aCombosFilm, $danezprobki, $probeFramesCount, $delta = 0 ){
-        $aRangesCorrectCombos = array();  
-        for ( $set=0; $set<count($aCombosFilm['qstr']); $set++){
-            $aCombo = $aCombosFilm['qstr'][$set];
-            $aBits = array();
-            
-            foreach( $aCombo AS $ii=>$qstr ){
-               
-                $ileKP = $danezprobki['kp'][$ii];
-                $ileKPFilm = $aCombosFilm['kpCombo'][$set][$ii];
-                
-                $ileKPFilm = $ileKPFilm == 0 ? 1 : $ileKPFilm;
-                $qstr = $qstr == 0 ? 1 : $qstr;
-                
-                $proporcjeKP = $ileKP / $ileKPFilm;
-                $proporcjeSTR = $danezprobki['qstr'][$ii] / $qstr;
-                
-//                var_dump_spec( "a:$set: $ii:  " . $proporcjeKP );
-//                var_dump_spec( "b:$set: $ii:  " . $proporcjeSTR );
-                
-                $propprop = $proporcjeKP / $proporcjeSTR;
-                
-                if ( $propprop < 3 && $propprop > 0.5 ){
-//                    
-                    $aBits[$ii] = 1;
-                }
-                else{
-//                    var_dump_spec( "c:$set: $ii:  " . $propprop );
-//                    var_dump_spec( "c:$set: $ii: " . $qstr . " ??? " . $danezprobki['qstr'][$ii] . " => " . $qdifstr . "==> " . $qstrprop );
-                }
-                
-//                
-//                $qdifstr = abs( $qstr - $danezprobki['qstr'][$ii] );
-//                if ( $qdifstr <= 10 ){
-//                    $aBits[$ii] = 1;
-//                }
-//                else{
-//                    $qstr = $qstr == 0 ? 1 : $qstr;
-//                    $qstrprop = $qdifstr / $qstr;
-//                
-//                    
-////                    var_dump_spec( "$set: $ii: " . $qstr . " ??? " . $danezprobki['qstr'][$ii] . " => " . $qdifstr . "==> " . $qstrprop );
-//                    
-//                }
-                
-//                    var_dump_spec( $aCombosFilm['qstr'][$set][$ii] . " ??? " . $danezprobki['qstr'][$ii] . " => " . $difstr );
-                 
-            }
-            
-//            var_dump_spec("$set:" . array_sum( $aBits ) );
-            if ( array_sum( $aBits ) >= $probeFramesCount - $delta  ){
-                $aRangesCorrectCombos[$set] = 1;
-            }
-        }
-        return $aRangesCorrectCombos;
-    }
-    
-    
     
     
      function getCorrectRangesG( $aCombosFilm, $danezprobki, $probeFramesCount, $deltaBit = 0, $deltaColor = 10, $colorKey = "colorG", $filmid = 66 ){
@@ -1912,35 +1873,31 @@ function returnCDifArray( $colors ){
             $aCombo = $aCombosFilm[$colorKey][$set];
             $aBits = array();
             foreach( $aCombo AS $ii=>$val ){
-//                $cdiff = abs( $val - $danezprobki[$colorKey][$ii] );
+                $cdiff = abs( $val - $danezprobki[$colorKey][$ii] );
                 if ( $colorKey == "colorB" && $filmid == 7 ){
 //                        var_dump_spec( "set:$set ii:$ii " . $val . " ??? " . $danezprobki[$colorKey][$ii] . " => " . $cdiff . "($maxdifs2)" );
                 }
-                    
-                    
+    
                 if ( $val >= 20 && $danezprobki[$colorKey][$ii] >= 30 ){
-                    $aBits[$ii] = 1;
+                    if ( $cdiff <= 60 ){ // w badanej probje nic nie dalo ale neich juz ostanie
+                        $aBits[$ii] = 1;
+//                        var_dump_spec( "filmid: $filmid > set:$set ii:$ii " . $val . " ??? " . $danezprobki[$colorKey][$ii] . " => " . $cdiff . "($maxdifs2)" );
+                    }
+                    else{
+//                        var_dump_spec( "filmid: $filmid > set:$set ii:$ii " . $val . " ??? " . $danezprobki[$colorKey][$ii] . " => " . $cdiff . "($maxdifs2)" );
+                    }
                 }
                 
-                if ( $val < 20 && $danezprobki[$colorKey][$ii] < 30 ){
-                    $aBits[$ii] = 1;
+                elseif ( $val < 20 && $danezprobki[$colorKey][$ii] < 30 ){
+                    
+                    if ( $cdiff <= 15 ){ // w badanej probce nic nie dalo...
+                        $aBits[$ii] = 1;
+                    }
                 }
-                
-//                if ( $cdiff <= $deltaColor ){
-//                    $aBits[$ii] = 1;
-//                }
-//                else{
-//                    $maxdifs2 = $danezprobki[$colorKey][$ii] / 2;
-//                    if ( $cdiff <= $maxdifs2 ){
-//                        $aBits[$ii] = 1;
-//                    }
-////                    $danezprobki[$colorKey][$ii] = $danezprobki[$colorKey][$ii] == 0 ? 1 : $danezprobki[$colorKey][$ii];
-////                    $prop = $cdiff / $danezprobki[$colorKey][$ii];
-//                    else{
-//                    if ( $colorKey == "colorB" && $aBits[$ii]==0 )
-//                        var_dump_spec( "set:$set ii:$ii " . $val . " ??? " . $danezprobki[$colorKey][$ii] . " => " . $cdiff . "($maxdifs2)" );
-//                    }
-//                }
+                else{
+//                    var_dump_spec( "set:$set ii:$ii " . $val . " ??? " . $danezprobki[$colorKey][$ii] . " => " . $cdiff . "($maxdifs2)" );
+                }
+  
             }
 //            
 //        var_dump_spec("set: $set => " . array_sum( $aBits ) );
