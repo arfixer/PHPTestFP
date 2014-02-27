@@ -1498,10 +1498,7 @@ function returnCDifArray( $colors ){
             . "[263,684,96,143,160,116,125,112,104,89,110,105,289,311,543,553,422,531,504,458,402,463,434,421,422,423,400,350,395,217],"
             . "[2,3,33,49,49,48,63,56,55,67,55,50,2,3,2,3,3,3,3,3,3,2,2,2,2,2,1,1,1,2],"
             . "[69,69,14,12,12,10,4,8,7,4,9,12,36,65,75,73,73,74,74,76,76,76,75,74,75,75,76,76,76,75],[5,6,4,4,4,5,3,3,3,2,2,2,5,4,6,6,6,6,5,5,5,5,5,5,5,5,5,4,4,4]]");
-    $aBadanaProbka[9] = json_decode("[[6,6,3,5,4,6,5,5,5,6,7,5,5,2,4,4,5,5,4,4,4,4,4,4,5,4,3,3,4,5],"
-            . "[9,9,9,9,9,8,10,10,10,11,11,11,10,9,11,12,11,12,12,10,10,10,10,11,10,10,10,10,9,9],[218,223,104,135,123,89,144,136,95,130,200,147,88,67,133,118,163,115,99,85,104,148,134,103,134,137,116,101,126,160],"
-            . "[7,5,3,3,3,3,2,2,2,3,3,3,3,2,2,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1],[43,44,45,45,49,46,50,49,52,55,54,47,49,45,45,50,44,42,40,45,50,43,42,39,37,37,36,41,42,43],"
-            . "[5,5,5,5,4,3,2,2,2,2,3,3,4,3,2,3,3,3,3,2,3,5,7,9,10,10,10,7,7,7]]");
+    $aBadanaProbka[9] = json_decode("[[6,6,3,5,4,6,5,5,5,6,7,5,5,2,4,4,5,5,4,4,4,4,4,4,5,4,3,3,4,5],[9,9,9,9,9,8,10,10,10,11,11,11,10,9,11,12,11,12,12,10,10,10,10,11,10,10,10,10,9,9],[218,223,104,135,123,89,144,136,95,130,200,147,88,67,133,118,163,115,99,85,104,148,134,103,134,137,116,101,126,160],[7,5,3,3,3,3,2,2,2,3,3,3,3,2,2,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1],[43,44,45,45,49,46,50,49,52,55,54,47,49,45,45,50,44,42,40,45,50,43,42,39,37,37,36,41,42,43],[5,5,5,5,4,3,2,2,2,2,3,3,4,3,2,3,3,3,3,2,3,5,7,9,10,10,10,7,7,7]]");
     $probeFrameStart = intval($_REQUEST['fpstart']);
     $probeFramesCount = 30;
     $badanaProbka = $_REQUEST['mFilmId'];
@@ -1511,20 +1508,20 @@ function returnCDifArray( $colors ){
     
 //    $aProbka = getProbka( $aBadanaProbka[$badanaProbka], $probeFrameStart, $probeFramesCount );
     
-    $aProbkaXXX[0] = getProbka( $aBadanaProbka[0], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[1] = getProbka( $aBadanaProbka[1], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[2] = getProbka( $aBadanaProbka[2], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[3] = getProbka( $aBadanaProbka[3], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[4] = getProbka( $aBadanaProbka[4], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[5] = getProbka( $aBadanaProbka[5], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[6] = getProbka( $aBadanaProbka[6], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[7] = getProbka( $aBadanaProbka[7], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[8] = getProbka( $aBadanaProbka[8], $probeFrameStart, $probeFramesCount );
-    $aProbkaXXX[9] = getProbka( $aBadanaProbka[9], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[0] = getProbka( $aBadanaProbka[0], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[1] = getProbka( $aBadanaProbka[1], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[2] = getProbka( $aBadanaProbka[2], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[3] = getProbka( $aBadanaProbka[3], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[4] = getProbka( $aBadanaProbka[4], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[5] = getProbka( $aBadanaProbka[5], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[6] = getProbka( $aBadanaProbka[6], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[7] = getProbka( $aBadanaProbka[7], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[8] = getProbka( $aBadanaProbka[8], $probeFrameStart, $probeFramesCount );
+//    $aProbkaXXX[9] = getProbka( $aBadanaProbka[9], $probeFrameStart, $probeFramesCount );
     
     
-    var_dump( count($aFilmy[0]),count($aFilmy[1]),count($aFilmy[2]),count($aFilmy[3]),count($aFilmy[4]),count($aFilmy[5]),count($aFilmy[6]),count($aFilmy[7]),count($aFilmy[8]),count($aFilmy[9]) );
-    var_dump( "<hr>", count($aBadanaProbka[0]),count($aBadanaProbka[1]),count($aBadanaProbka[2]),count($aBadanaProbka[3]),count($aBadanaProbka[4]),count($aBadanaProbka[5]),count($aBadanaProbka[6]),count($aBadanaProbka[7]),count($aBadanaProbka[8]),count($aBadanaProbka[9]) );
+//    var_dump( count($aFilmy[0]),count($aFilmy[1]),count($aFilmy[2]),count($aFilmy[3]),count($aFilmy[4]),count($aFilmy[5]),count($aFilmy[6]),count($aFilmy[7]),count($aFilmy[8]),count($aFilmy[9]) );
+//    var_dump( "<hr>", count($aBadanaProbka[0]),count($aBadanaProbka[1]),count($aBadanaProbka[2]),count($aBadanaProbka[3]),count($aBadanaProbka[4]),count($aBadanaProbka[5]),count($aBadanaProbka[6]),count($aBadanaProbka[7]),count($aBadanaProbka[8]),count($aBadanaProbka[9]) );
     
     
     $aFilmyAsset = array();
@@ -1552,7 +1549,7 @@ function returnCDifArray( $colors ){
         
        
       $aKPCombination = array();
-        for( $i=0; $i<75-$probeFramesCount+1; $i++ ){
+        for( $i=0; $i<50-$probeFramesCount+1; $i++ ){
             $aSliced = array_slice( $aFilmAsset["kp"], $i, $probeFramesCount );
             $aFilmAsset['combos']["kpCombo"][] = $aSliced;
             $aSliced = array_slice( $aFilmAsset["kpDif"], $i, $probeFramesCount );
@@ -1597,10 +1594,14 @@ function returnCDifArray( $colors ){
     var_dump_spec( "Dane Filmow gotowe<hr/><hr/>" );
     
     $aZgodneSety = array();
-    for ( $p=0; $p<=9; $p++ ){
-    var_dump_spec( ":<hr/>Badana Probka $p:<hr/>" );
-        testFilmyProbka( $aProbkaXXX[$p], $aFilmyAsset, $probeFramesCount );
-    }
+//    for ( $p=0; $p<=9; $p++ ){
+    var_dump_spec( ":<hr/>Badana Probka :<hr/>" );
+//    $aP = json_decode($_REQUEST['data']);
+    $aPr = getProbka( json_decode($_REQUEST['data']), $probeFrameStart, $probeFramesCount );
+    
+//    testFilmyProbka( $aProbkaXXX[$p], $aFilmyAsset, $probeFramesCount );
+    testFilmyProbka( $aPr, $aFilmyAsset, $probeFramesCount );
+//    }
     
     
     
@@ -1647,6 +1648,8 @@ function returnCDifArray( $colors ){
         
         $c = 0;
         
+        
+        $aResp = array();
         for ( $filmid=0; $filmid<=9; $filmid++ ){
             $aX = array_intersect_key($aZgodneKolory[$filmid], $aZgodneQ[$filmid]);
             $aX2 = array_intersect_key($aX, $aZgodneQSTR[$filmid]);
@@ -1661,23 +1664,29 @@ function returnCDifArray( $colors ){
             
             
             if( count($aX2) ){
+                $aResp[$filmid] = $aX2;
                 var_dump_spec("ZGODNOSC KOLOR + Q + QSTR dl filmu: $filmid:" . count($aX2) );
                 $c += count($aX2);
-                foreach ($aX2 as $key => $value) {
-                    echo "$key,";
-                }
+//                foreach ($aX2 as $key => $value) {
+//                    echo "$key,";
+//                }
             }
+            
             
             
             
 //            var_dump_spec($aX);
             
         }
+        
+        
         $call = $filmid * 45;
         $p = round(100*$c/$call, 2);
         var_dump_spec( "<B>$c / $call = $p%</b>"  );
 //        var_dump_spec( $aZgodneQ );
         
+    echo json_encode( $aResp, JSON_FORCE_OBJECT );
+    exit;
 //        return $aAll;
     }
     
