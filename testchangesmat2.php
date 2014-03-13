@@ -602,11 +602,11 @@ $aFilmy[2] = json_decode(''
     $aFilmy[5] = json_decode('{"kpc":[],"kpq":[],"kpqstr":[],"cb":[],"cg":[],"cr":[],"grayq":[],"grayqstr":[],"kpqc":[],"kpqcstr":[],"cbq":[],"cbqstr":[],"cgq":[],"cgqstr":[],"crq":[],"crqstr":[]}');
     $aFilmy[8] = json_decode('{"kpc":[],"kpq":[],"kpqstr":[],"cb":[],"cg":[],"cr":[],"grayq":[],"grayqstr":[],"kpqc":[],"kpqcstr":[],"cbq":[],"cbqstr":[],"cgq":[],"cgqstr":[],"crq":[],"crqstr":[]}');
     $aFilmy[10] = json_decode('{"kpc":[],"kpq":[],"kpqstr":[],"cb":[],"cg":[],"cr":[],"grayq":[],"grayqstr":[],"kpqc":[],"kpqcstr":[],"cbq":[],"cbqstr":[],"cgq":[],"cgqstr":[],"crq":[],"crqstr":[]}');
+    $aFilmy[13] = json_decode('{"kpc":[],"kpq":[],"kpqstr":[],"cb":[],"cg":[],"cr":[],"grayq":[],"grayqstr":[],"kpqc":[],"kpqcstr":[],"cbq":[],"cbqstr":[],"cgq":[],"cgqstr":[],"crq":[],"crqstr":[]}');
     
-    foreach ( $aFilmy AS $key=>$aFilm ){
-        var_dump_spec("filmid: $key objcount: " . count( $aFilm ) );
-        
-    }
+//    foreach ( $aFilmy AS $key=>$aFilm ){
+//        var_dump_spec("filmid: $key objcount: " . count( $aFilm ) );
+//    }
     
         return $aFilmy;
     }
@@ -735,23 +735,161 @@ $aFilmy[2] = json_decode(''
         return $aZgodnosci;
     }
     
+     /***
+     * S0: Q+QSTR 
+     * S1: CENTER Q + CENTER QSTR
+     * S2: COLOR B+R Q + COLOR B+R QSTR
+     * 
+     * @param type $aProbka
+     * @param type $aFilmyAsset
+     * @param type $probeFramesCount
+     * @param type $aFilmyAssetCENTER*
+     */
+    function testFilmyProbka1( $aProbka, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER ){
+        $aResp = stage0a($aProbka, $aFilmyAsset, $probeFramesCount);
+        if ( count($aResp) <= 1 ){ echoJson( $aResp, "0_WYNIK" ); }
+        else{
+            $aRespStage1 = stage1($aProbka, $aFilmyAsset, $probeFramesCount);
+            $aRespAfterStage1 = getIntersectOf2Arrays($aResp, $aRespStage1 );
+             
+             if( count($aRespAfterStage1) == 0 ){ echoJson( $aResp, "0_MORE_1_ZERO" ); }
+             elseif( count($aRespAfterStage1) == 1 ){ echoJson( $aRespAfterStage1, "0_MORE_1_ONE" ); }
+             elseif( count($aRespAfterStage1) > 1 ){
+                $aRespStage2 = stage2($aProbka, $aFilmyAsset, $probeFramesCount); 
+                $aRespAfterStage2 = getIntersectOf2Arrays($aRespStage2, $aRespStage1 );
+              
+                if ( count($aRespAfterStage2) == 0 ){  echoJson( $aRespAfterStage1, "0_MORE_1_MORE_2_ZERO" ); }
+                elseif ( count($aRespAfterStage2) == 1 ){  echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_ONE" ); }
+                else{ echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_MORE" ); }
+             }
+        }
+    }
+    
+    /***
+     * S0: CENTER Q + CENTER QSTR
+     * S1: Q+QSTR 
+     * S2: COLOR B+R Q + COLOR B+R QSTR
+     * 
+     * @param type $aProbka
+     * @param type $aFilmyAsset
+     * @param type $probeFramesCount
+     * @param type $aFilmyAssetCENTER*
+     */
+    function testFilmyProbka2( $aProbka, $aFilmyAsset, $probeFramesCount ){
+        $aResp = stage1($aProbka, $aFilmyAsset, $probeFramesCount);
+        if ( count($aResp) <= 1 ){ echoJson( $aResp, "0_WYNIK" ); }
+        else{
+            $aRespStage1 = stage0a($aProbka, $aFilmyAsset, $probeFramesCount);
+            $aRespAfterStage1 = getIntersectOf2Arrays($aResp, $aRespStage1 );
+             
+             if( count($aRespAfterStage1) == 0 ){ echoJson( $aResp, "0_MORE_1_ZERO" ); }
+             elseif( count($aRespAfterStage1) == 1 ){ echoJson( $aRespAfterStage1, "0_MORE_1_ONE" ); }
+             elseif( count($aRespAfterStage1) > 1 ){
+                $aRespStage2 = stage2($aProbka, $aFilmyAsset, $probeFramesCount); 
+                $aRespAfterStage2 = getIntersectOf2Arrays($aRespStage2, $aRespStage1 );
+              
+                if ( count($aRespAfterStage2) == 0 ){  echoJson( $aRespAfterStage1, "0_MORE_1_MORE_2_ZERO" ); }
+                elseif ( count($aRespAfterStage2) == 1 ){  echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_ONE" ); }
+                else{ echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_MORE" ); }
+             }
+        }
+    }
     
     
-    function testFilmyProbka( $aProbka, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER ){
-//        if ( $stage == 1){
-//            $aProbka['q'] = $aProbka['qc'];
-//            $aProbka['qstr'] = $aProbka['qcstr'];
-//        }
+    
+    /***
+     * S0: Color+Q 
+     * S1: CENTER Q + CENTER QSTR
+     * S2: COLOR B+R Q + COLOR B+R QSTR
+     * 
+     * @param type $aProbka
+     * @param type $aFilmyAsset
+     * @param type $probeFramesCount
+     * @param type $aFilmyAssetCENTER*
+     */
+    function testFilmyProbka0( $aProbka, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER ){
+        $aResp = stage0($aProbka, $aFilmyAsset, $probeFramesCount);
+        if ( count($aResp) <= 1 ){ echoJson( $aResp, "0_WYNIK" ); }
+        else{
+            $aRespStage1 = stage1($aProbka, $aFilmyAsset, $probeFramesCount);
+            $aRespAfterStage1 = getIntersectOf2Arrays($aResp, $aRespStage1 );
+             
+             if( count($aRespAfterStage1) == 0 ){ echoJson( $aResp, "0_MORE_1_ZERO" ); }
+             elseif( count($aRespAfterStage1) == 1 ){ echoJson( $aRespAfterStage1, "0_MORE_1_ONE" ); }
+             elseif( count($aRespAfterStage1) > 1 ){
+                $aRespStage2 = stage2($aProbka, $aFilmyAsset, $probeFramesCount); 
+                $aRespAfterStage2 = getIntersectOf2Arrays($aRespStage2, $aRespStage1 );
+              
+                if ( count($aRespAfterStage2) == 0 ){  echoJson( $aRespAfterStage1, "0_MORE_1_MORE_2_ZERO" ); }
+                elseif ( count($aRespAfterStage2) == 1 ){  echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_ONE" ); }
+                else{ echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_MORE" ); }
+             }
+        }
         
+//    exit;
+    }
+    
+    
+    
+    /***
+     * S0: Q + CENTER Q 
+     * S1: CENTER Q + CENTER QSTR
+     * S2: COLOR B+R Q + COLOR B+R QSTR
+     * 
+     * @param type $aProbka
+     * @param type $aFilmyAsset
+     * @param type $probeFramesCount
+     * @param type $aFilmyAssetCENTER*
+     */
+    function testFilmyProbka3( $aProbka, $aFilmyAsset, $probeFramesCount ){
+        $aResp = stageQ_CQ($aProbka, $aFilmyAsset, $probeFramesCount);
+        if ( count($aResp) <= 1 ){ echoJson( $aResp, "0_WYNIK" ); }
+        else{
+            $aRespStage1 = stage1($aProbka, $aFilmyAsset, $probeFramesCount);
+            $aRespAfterStage1 = getIntersectOf2Arrays($aResp, $aRespStage1 );
+             
+             if( count($aRespAfterStage1) == 0 ){ echoJson( $aResp, "0_MORE_1_ZERO" ); }
+             elseif( count($aRespAfterStage1) == 1 ){ echoJson( $aRespAfterStage1, "0_MORE_1_ONE" ); }
+             elseif( count($aRespAfterStage1) > 1 ){
+                $aRespStage2 = stage2($aProbka, $aFilmyAsset, $probeFramesCount); 
+                $aRespAfterStage2 = getIntersectOf2Arrays($aRespStage2, $aRespStage1 );
+              
+                if ( count($aRespAfterStage2) == 0 ){  echoJson( $aRespAfterStage1, "0_MORE_1_MORE_2_ZERO" ); }
+                elseif ( count($aRespAfterStage2) == 1 ){  echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_ONE" ); }
+                else{ echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_MORE" ); }
+             }
+        }
+        
+//    exit;
+    }
+    
+    
+    function stageQ_CQ( $aProbka, $aFilmyAsset, $probeFramesCount ){
+       $aZgodneQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount, 0);
+       $aZgodneCQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount, 1);
+       $aResp = array();
+       
+       $aZgodne = getIntersectOf2Arrays($aZgodneCQ, $aZgodneQ);
+            
+       
+        for ( $filmid=0; $filmid<=14; $filmid++ ){
+            var_dump_spec("ZGODNOSC Q + CQ  dla filmu: $filmid:" . count($aZgodneQ[$filmid]) . " " . count($aZgodneCQ[$filmid]). " => ALL: " . count($aZgodne[$filmid])  );
+            if( count($aZgodne[$filmid]) ){
+                $aResp[$filmid] = $aZgodne[$filmid];
+            }
+        } 
+        return $aResp;
+    }
+    
+    function stage0( $aProbka, $aFilmyAsset, $probeFramesCount ){
         
         $aZgodneKolory = przetestujColory($aProbka, $aFilmyAsset, $probeFramesCount);
         $aZgodneQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount, 0);
-        $aZgodneQSTR = przetestujQSTR($aProbka, $aFilmyAsset, $probeFramesCount, 0);
         
         $c = 0;    
         $aResp = array();
         for ( $filmid=0; $filmid<=14; $filmid++ ){
-            var_dump_spec("ZGODNOSC KOLOR + Q + QSTR dla filmu: $filmid:" . count($aZgodneKolory[$filmid]) . " " . count($aZgodneQ[$filmid]) . " " . count($aZgodneQSTR[$filmid])  );
+            var_dump_spec("ZGODNOSC KOLOR + Q  dla filmu: $filmid:" . count($aZgodneKolory[$filmid]) . " " . count($aZgodneQ[$filmid])  );
         
             $aX = array_intersect_key($aZgodneKolory[$filmid], $aZgodneQ[$filmid]);
 //            $aX2 = array_intersect_key($aX, $aZgodneQSTR[$filmid]);
@@ -759,97 +897,108 @@ $aFilmy[2] = json_decode(''
             
             if( count($aX2) ){
                 $aResp[$filmid] = $aX2;
-                var_dump_spec("ZGODNOSC KOLOR + Q + QSTR dla filmu: $filmid:" . count($aX2) );
+                var_dump_spec("ZGODNOSC KOLOR + Q  dla filmu: $filmid:" . count($aX2) );
                 $c += count($aX2);
             }
         }
         
-        if( count($aResp) > 1 ){
-            var_dump_spec("START STAGE 1 - Q+STR CENTER ONLY");
+        return $aResp;
+    } 
     
-            $aProbka['q'] = $aProbka['qc'];
-            $aProbka['qstr'] = $aProbka['qcstr'];
+    //Q + QSTR
+    function stage0a( $aProbka, $aFilmyAsset, $probeFramesCount ){
+        
+        $aZgodneQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount, 0);
+        $aZgodneQSTR = przetestujQSTR($aProbka, $aFilmyAsset, $probeFramesCount, 0);
+        
+        $c = 0;    
+        $aResp = array();
+        for ( $filmid=0; $filmid<=14; $filmid++ ){
+            var_dump_spec("ZGODNOSC  Q + QSTR dla filmu: $filmid:"  . count($aZgodneQ[$filmid]) . " " . count($aZgodneQSTR[$filmid])  );
+        
+            $aX = array_intersect_key($aZgodneQSTR[$filmid], $aZgodneQ[$filmid]);
             
-            $aZgodneQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount, 1);
-            $aZgodneQSTR = przetestujQSTR($aProbka, $aFilmyAsset, $probeFramesCount, 1);
-            $cS1 = 0;    
-            $aRespStage1 = array();
-             for ( $filmid=0; $filmid<=14; $filmid++ ){
-              
-                $aXStage1 = array_intersect_key($aZgodneKolory[$filmid], $aZgodneQ[$filmid]);
-                $aX2Stage1 = array_intersect_key($aXStage1, $aZgodneQSTR[$filmid]);
-                
+            if( count($aX) ){
+                $aResp[$filmid] = $aX;
+                $c += count($aX);
+            }
+        }
+        
+        return $aResp;
+    } 
+    
+    function stage1( $aProbka, $aFilmyAsset, $probeFramesCount ){
+        var_dump_spec("START STAGE 1 - Q+STR CENTER ONLY");
+            
+        $aZgodneQ = przetestujQ($aProbka, $aFilmyAsset, $probeFramesCount, 1);
+        $aZgodneQSTR = przetestujQSTR($aProbka, $aFilmyAsset, $probeFramesCount, 1);
+        $aRespStage1 = array();
+        for ( $filmid=0; $filmid<=14; $filmid++ ){
+             $aX2Stage1 = array_intersect_key($aZgodneQ[$filmid], $aZgodneQSTR[$filmid]);
+               
+                var_dump_spec("ZGODNOSC STAGE 1 - CENTER Q + QSTR dla filmu: $filmid: " . 
+                        " Q:" . count($aZgodneQ[$filmid]) . 
+                        " QSTR:" . count($aZgodneQSTR[$filmid]) ); 
                 if( count($aX2Stage1) ){
                     $aRespStage1[$filmid] = $aX2Stage1;
-                    var_dump_spec("ZGODNOSC CENTER KOLOR + Q + QSTR dla filmu: $filmid: " . 
-                        " KOLOR:" . count($aZgodneKolory[$filmid]) . 
-                        " Q:" . count($aZgodneQ[$filmid]) . 
-                        " QSTR:" . count($aZgodneQSTR[$filmid]) . 
-                        " ALL:" . count($aX2Stage1) );
-                    $cS1 += count($aX2Stage1);
                 }
-                
-                
+        }
+        return $aRespStage1;
+    }
+    
+    function testFilmyProbkaX( $aProbka, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER ){
+        $aRespStage0 = stage0a($aProbka, $aFilmyAsset, $probeFramesCount);
+        $aRespStage0a = stage0a($aProbka, $aFilmyAsset, $probeFramesCount);
+        $aRespStage1 = stage1($aProbka, $aFilmyAsset, $probeFramesCount);
+    }
+    
+    function getIntersectOf2Arrays( $arr1, $arr2 ){
+        $aRespAfter = array();
+        for ( $filmid=0; $filmid<=14; $filmid++ ){
+             if ( is_array($arr1[$filmid]) && is_array($arr2[$filmid])){
+                $aRespAfter[$filmid] = array_intersect_key($arr1[$filmid], $arr2[$filmid]);
              }
-             
-            
-             $aRespAfterStage1 = array();
-            
-             for ( $filmid=0; $filmid<=14; $filmid++ ){
-                 if ( is_array($aResp[$filmid]) && is_array($aRespStage1[$filmid])){
-                    $aRespAfterStage1[$filmid] = array_intersect_key($aResp[$filmid], $aRespStage1[$filmid]);
-                 }
-             }
-             if( count($aRespAfterStage1) == 0 ){
-                 echoJson( $aResp, "0_MORE_1_ZERO" );
-             }
-             elseif( count($aRespAfterStage1) == 1){
-                 echoJson( $aResp, "0_MORE_1_ONE" );
-             }
-             elseif( count($aRespAfterStage1) > 1 ){
-                 var_dump_spec("START STAGE 2 - COLOR VECTOR Q + STR");
-                 
-                 $aZgodneColorGQ = przetestujColorQ($aProbka, $aFilmyAsset, $probeFramesCount, "qcolorG", "qcolorGstr");
-                 $aZgodneColorRQ = przetestujColorQ($aProbka, $aFilmyAsset, $probeFramesCount, "qcolorR", "qcolorRstr");
-                 
-                 $aRespStage2 = array();
-                $aRespAfterStage2 = array(); 
-                for ( $filmid=0; $filmid<=14; $filmid++ ){
-                       $aXStage2 = array_intersect_key($aZgodneColorGQ[$filmid], $aZgodneColorRQ[$filmid]);
-                       $aRespStage2[$filmid] = $aXStage2;
+         }
+         return $aRespAfter;
+    }
+    
+    function stage2( $aProbka, $aFilmyAsset, $probeFramesCount ){
+        var_dump_spec("START STAGE 2 - COLOR VECTOR Q + STR");
+        $aZgodneColorGQ = przetestujColorQ($aProbka, $aFilmyAsset, $probeFramesCount, "qcolorG", "qcolorGstr");
+        $aZgodneColorRQ = przetestujColorQ($aProbka, $aFilmyAsset, $probeFramesCount, "qcolorR", "qcolorRstr");
+        $aRespStage2 = getIntersectOf2Arrays( $aZgodneColorGQ, $aZgodneColorRQ ); 
+        for ( $filmid=0; $filmid<=14; $filmid++ ){
+                       
                  var_dump_spec("ZGODNOSC STAGE 2 dla filmu: $filmid: " . 
                          " KOLORG:" . count($aZgodneColorGQ[$filmid] ) . 
                          " KOLORR:" . count($aZgodneColorRQ[$filmid] ) .
-                        " ALL:" . count($aXStage2) );   
+                        " ALL:" . count($aRespStage2[$filmid]) );   
             
-                        if ( is_array($aRespAfterStage1[$filmid]) && is_array($aRespStage2[$filmid])){
-                            $aRespAfterStage2[$filmid] = array_intersect_key($aRespAfterStage1[$filmid], $aRespStage2[$filmid]);
-                        }
                  
-                }    
-                 
-                if ( count($aRespAfterStage2) == 0 ){
-                    echoJson( $aRespAfterStage1, "0_MORE_1_MORE_2_ZERO" );
-                }
-                elseif ( count($aRespAfterStage2) == 1 ){
-                    echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_ONE" );
-                }
-                else{
-                    echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_MORE" );
-                }
-             }
-        }
-        else{
-            echoJson( $aResp, "0_WYNIK" );
-        }
-    exit;
-//        return $aAll;
+                } 
+                
+        return $aRespStage2;
     }
+    
+    
+    
+    
+    
     
     function echoJson( $aResp, $msg ){
         $aReturn = array();
+        
         $aReturn["msg"] = $msg;
-        $aReturn["result"] = array_keys($aResp);
+        
+        $aRespF = array();
+        foreach ( $aResp AS $key=>$aVals ){
+            if ( count($aVals) ){
+                $aRespF[$key] = $aVals;
+            }
+        }
+        $aReturn["result"] = array_keys($aRespF);
+        
+        
         echo json_encode( $aReturn, JSON_FORCE_OBJECT );
         exit;
     }
@@ -903,7 +1052,8 @@ $aFilmy[2] = json_decode(''
         
     }
     
-    function przetestujQSTR( $aProbka, $aFilmyAsset, $probeFramesCount, $stage ){
+    function przetestujQSTR
+    ( $aProbka, $aFilmyAsset, $probeFramesCount, $stage ){
         $aZgodnosci = array();
         for ( $filmid=0; $filmid<=14; $filmid++){
             
@@ -987,7 +1137,7 @@ $aFilmy[2] = json_decode(''
         $aZgodnosci = array();
         for ( $filmid=0; $filmid<=14; $filmid++){
             $aCombos = $aFilmyAsset[$filmid]["combos"];
-            $aX = getCorrectRangesQ($aCombos, $aProbka, $probeFramesCount, 5, $filmid, $stage);
+            $aX = getCorrectRangesQ($aCombos, $aProbka, $probeFramesCount, 10, $filmid, $stage);
             $aZgodnosci[$filmid] = $aX;
         }
         return $aZgodnosci;
@@ -1018,26 +1168,38 @@ $aFilmy[2] = json_decode(''
                 $probkaval = $danezprobki[$keyq][$ii];
                 $qdiff = abs( $filmval - $probkaval );
                 
+                
+                        
                 if ( $qdiff <= 2 || $qdiff >= 14  ){
                     $aBits[$ii] = 1;
+                     
                 }
                 else{
                     if ( $aCombosFilm[$keyqstr][$set][$ii] < 100 ){
-//                        if( $filmid == 4 ){
+                        
                             $difstr = abs($aCombosFilm[$keyqstr][$set][$ii] - $danezprobki[$keyqstr][$ii]);
+                            
                             if ( $difstr < 50 ){
                                 $aBits[$ii] = 1;
                             }
-//                            var_dump_spec( "filmid: $filmid => " . $aCombosFilm['qstr'][$set][$ii] . " ??? " . $danezprobki['qstr'][$ii] . " => " . $difstr );
+                            
 //                        }
                     }
                 }
             }
             
+//            if( $filmid == 14 && $stage==1){
+//                            var_dump_spec( " filmid: $filmid => " . array_sum( $aBits ) .">= $probeFramesCount - $delta" );
+//                           var_dump_spec( $aBits );
+//                        }
+                        
+                        
             if ( array_sum( $aBits ) >= $probeFramesCount - $delta  ){
                 $aRangesCorrectCombos[$set] = 1;
             }
         }
+        
+       
         
         
         return $aRangesCorrectCombos;
@@ -1148,8 +1310,20 @@ $aFilmy[2] = json_decode(''
     $aPr = getProbka( $aDatas, $probeFrameStart, $probeFramesCount );
     
 //    var_dump_spec($aPr );
-    testFilmyProbka( $aPr, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER );
-    
+    switch( $_REQUEST['alg']){
+        case 0:
+            testFilmyProbka0( $aPr, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER );
+            break;
+        case 1:
+            testFilmyProbka1( $aPr, $aFilmyAsset, $probeFramesCount, $aFilmyAssetCENTER );
+            break;
+        case 2:
+            testFilmyProbka2( $aPr, $aFilmyAsset, $probeFramesCount );
+            break;
+        case 3:
+            testFilmyProbka3( $aPr, $aFilmyAsset, $probeFramesCount );
+            break;
+    }
     exit;
     
     
