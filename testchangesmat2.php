@@ -1,12 +1,24 @@
 <?php
 //fingerp
-
-
-
+    
+//    var_dump_spec("POST");
+//    var_dump_spec($_POST);
+//    var_dump_spec("GET");
+//    var_dump_spec($_GET);
+//    var_dump_spec("REQUEST");
+//    var_dump_spec($_REQUEST);
+    
+    $orb = $_REQUEST['orb'];
+    $orb = str_replace( "],]", "]]", $orb );
+    $orb = str_replace( ",]", "]", $orb );
+    
+//    var_dump_spec($orb);
+    var_dump_spec(json_decode($orb));
+    
 
 //takie tam 
 function var_dump_spec( $datas, $bPre=true ){
-    if ( $_GET['verbose'] == 1){
+    if ( $_REQUEST['verbose'] == 1){
         if ( $bPre ) echo "<pre>";
         var_dump( $datas );
         if ( $bPre ) echo "</pre>";
@@ -854,6 +866,7 @@ $aFilmy[2] = json_decode(''
                 $aRespStage2 = stage2($aProbka, $aFilmyAsset, $probeFramesCount); 
                 $aRespAfterStage2 = getIntersectOf2Arrays($aRespStage2, $aRespStage1 );
               
+                var_dump_spec( $aRespStage2 );
                 if ( count($aRespAfterStage2) == 0 ){  echoJson( $aRespAfterStage1, "0_MORE_1_MORE_2_ZERO" ); }
                 elseif ( count($aRespAfterStage2) == 1 ){  echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_ONE" ); }
                 else{ echoJson( $aRespAfterStage2, "0_MORE_1_MORE_2_MORE" ); }
@@ -966,9 +979,12 @@ $aFilmy[2] = json_decode(''
         var_dump_spec("START STAGE 2 - COLOR VECTOR Q + STR");
         $aZgodneColorGQ = przetestujColorQ($aProbka, $aFilmyAsset, $probeFramesCount, "qcolorG", "qcolorGstr");
         $aZgodneColorRQ = przetestujColorQ($aProbka, $aFilmyAsset, $probeFramesCount, "qcolorR", "qcolorRstr");
-        $aRespStage2 = getIntersectOf2Arrays( $aZgodneColorGQ, $aZgodneColorRQ ); 
+        $aRespStage2 = getIntersectOf2Arrays( $aZgodneColorGQ, $aZgodneColorRQ );
+        $aResp = array();
         for ( $filmid=0; $filmid<=14; $filmid++ ){
-                       
+                       if ( count($aRespStage2[$filmid])){
+                           $aResp[$filmid] = $aRespStage2[$filmid];
+                       }
                  var_dump_spec("ZGODNOSC STAGE 2 dla filmu: $filmid: " . 
                          " KOLORG:" . count($aZgodneColorGQ[$filmid] ) . 
                          " KOLORR:" . count($aZgodneColorRQ[$filmid] ) .
@@ -977,7 +993,7 @@ $aFilmy[2] = json_decode(''
                  
                 } 
                 
-        return $aRespStage2;
+        return $aResp;
     }
     
     
